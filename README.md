@@ -6,6 +6,12 @@ Código completo do site oficial de **Maicon Leoni**, produtor e criador de mús
 
 [maicon-leoni.maiconleoni1991.chatgpt.site](https://maicon-leoni.maiconleoni1991.chatgpt.site)
 
+## GitHub Pages
+
+[maiconleoni1991-lang.github.io/maicon-leoni-site](https://maiconleoni1991-lang.github.io/maicon-leoni-site/)
+
+A versão estática e navegável do GitHub Pages está na pasta `docs/`.
+
 ## Recursos
 
 - apresentação profissional do produtor musical;
@@ -38,6 +44,12 @@ npm run dev
 
 ```bash
 npm run build
+```
+
+Para atualizar a versão estática do GitHub Pages:
+
+```bash
+npm run build:pages
 ```
 
 ## Estrutura principal

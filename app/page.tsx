@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 
+const assetBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const links = {
   spotify: "https://open.spotify.com/artist/6TgHkrX7BoeIIpLlNrOKDK",
   instagram: "https://www.instagram.com/maicon_leoni/",
@@ -76,7 +78,7 @@ const platforms = [
 function BrandLockup({ className }: { className: string }) {
   return (
     <span className={`brandLockup ${className}`} aria-label="Maicon Leoni — Criação e Produção Musical">
-      <img src="/maicon-leoni-logo-horizontal.png" alt="" />
+      <img src={`${assetBasePath}/maicon-leoni-logo-horizontal.png`} alt="" />
     </span>
   );
 }
