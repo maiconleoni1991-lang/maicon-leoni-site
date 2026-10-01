@@ -24,13 +24,29 @@ const platformIcons = {
 
 const releases = [
   {
+    title: "Tua Mão Sobre a Casa",
+    type: "Faixa do EP Tu Permaneces Deus • Gospel",
+    year: "2026",
+    href: "https://open.spotify.com/track/4chg24X8hJipWWpaYYeLux",
+    youtubeMusic: "https://music.youtube.com/search?q=MAICON%20LEONI%20Tua%20M%C3%A3o%20Sobre%20a%20Casa",
+    cover: "https://i.scdn.co/image/ab67616d0000e1a357887fe25a43bace6a1d637a",
+    featured: true,
+  },
+  {
+    title: "Lamento de Israel - Hebraico/ Portugues",
+    type: "Single • Adoração",
+    year: "2026",
+    href: "https://open.spotify.com/album/5s6kl5T8eF2B9U9AtrcrnA",
+    youtubeMusic: "https://music.youtube.com/search?q=MAICON%20LEONI%20Lamento%20de%20Israel%20Hebraico%20Portugu%C3%AAs",
+    cover: "https://i.scdn.co/image/ab67616d0000e1a3532853cccfe444cb56ffecb6",
+  },
+  {
     title: "Até a Cadeia Cantar",
-    type: "Novo single • Gospel",
+    type: "Single • Gospel",
     year: "2026",
     href: "https://open.spotify.com/album/5ph8IUXTYP03gWuVoC22F4",
     youtubeMusic: "https://music.youtube.com/search?q=MAICON%20LEONI%20At%C3%A9%20a%20Cadeia%20Cantar",
     cover: "https://i.scdn.co/image/ab67616d0000b273717c9d5be9d1cc98e0e3e7ea",
-    featured: true,
   },
   {
     title: "Armadura de Deus",
@@ -171,17 +187,17 @@ export default function Home() {
       <section className="section latest" id="lancamentos">
         <div className="sectionTop">
           <div><p className="kicker"><span /> EM DESTAQUE</p><h2>Último<br /><em>lançamento.</em></h2></div>
-          <p>Uma canção inspirada na fé que permanece firme mesmo quando as circunstâncias tentam calar a adoração.</p>
+          <p>Uma oração cantada sobre consagrar o lar a Deus e confiar no cuidado da Sua mão sobre toda a família.</p>
         </div>
         <article className="featuredRelease">
           <a className="featuredCover" href={releases[0].href} target="_blank" rel="noreferrer">
-            <img src={releases[0].cover} alt="Capa de Até a Cadeia Cantar" />
+            <img src={releases[0].cover} alt="Capa de Tua Mão Sobre a Casa" />
             <span className="coverPlay">▶</span>
           </a>
           <div className="featuredInfo">
-            <span className="releaseIndex">01 / NOVO SINGLE</span>
-            <h3>Até a<br />Cadeia Cantar</h3>
-            <p>Nem toda prisão consegue calar um adorador. Uma mensagem sobre permanecer em louvor, mesmo em meio à prova.</p>
+            <span className="releaseIndex">01 / NOVO LANÇAMENTO</span>
+            <h3>Tua Mão<br />Sobre a Casa</h3>
+            <p>Uma canção de fé, proteção e entrega para declarar que o lar e a família permanecem debaixo do cuidado de Deus.</p>
             <div className="releaseCredits"><span><small>ARTISTA</small>Maicon Leoni</span><span><small>GÊNERO</small>Gospel</span><span><small>ANO</small>2026</span></div>
             <div className="featuredListen">
               <a className="textButton spotifyButton" href={releases[0].href} target="_blank" rel="noreferrer"><img src={platformIcons.spotify} alt="" /> SPOTIFY <span>↗</span></a>
@@ -262,7 +278,7 @@ export default function Home() {
         <div className="floatingPlayerBar">
           <div>
             <small>TOCANDO AGORA</small>
-            <strong>Até a Cadeia Cantar</strong>
+            <strong>Tua Mão Sobre a Casa</strong>
           </div>
           <button
             type="button"
@@ -275,8 +291,8 @@ export default function Home() {
         </div>
         <div className="floatingPlayerEmbed" aria-hidden={!playerExpanded}>
           <iframe
-            title="Ouvir Até a Cadeia Cantar no Spotify"
-            src="https://open.spotify.com/embed/album/5ph8IUXTYP03gWuVoC22F4?utm_source=generator&theme=0"
+            title="Ouvir Tua Mão Sobre a Casa no Spotify"
+            src="https://open.spotify.com/embed/track/4chg24X8hJipWWpaYYeLux?utm_source=generator&theme=0"
             width="100%"
             height="152"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
