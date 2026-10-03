@@ -1,0 +1,48 @@
+name: Atualizar categoria Cremoso
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rename-cremoso.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rename-category:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trocar Ao Leite por Cremoso
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('docs/geladinhos/index.html')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+              'Tradicionais, ao leite e gourmets': 'Tradicionais, cremosos e gourmets',
+              '>Ao Leite · R$ 3,50<': '>Cremoso · R$ 3,50<',
+              'data-filter="Ao Leite">Ao Leite': 'data-filter="Cremoso">Cremoso',
+              "cat:'Ao Leite'": "cat:'Cremoso'",
+              "['Tradicional','Ao Leite','Gourmet']": "['Tradicional','Cremoso','Gourmet']",
+              "c==='Ao Leite'?3.5": "c==='Cremoso'?3.5",
+              "c==='Ao Leite'?'🥛'": "c==='Cremoso'?'🥛'",
+          }
+          for a,b in replacements.items(): s=s.replace(a,b)
+          p.write_text(s,encoding='utf-8')
+
+          p = Path('docs/geladinhos/admin/manage.html')
+          s = p.read_text(encoding='utf-8')
+          s=s.replace('<option>Ao Leite</option>','<option>Cremoso</option>')
+          s=s.replace("||'Ao Leite'","||'Cremoso'")
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Publicar alterações
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/geladinhos/index.html docs/geladinhos/admin/manage.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Renomeia categoria Ao Leite para Cremoso"
+          git push
