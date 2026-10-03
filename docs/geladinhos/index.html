@@ -3,91 +3,390 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ef1767">
-<meta name="description" content="Geladinho dos Sonhos em Monte Alto/SP. Tradicionais, cremosos e gourmets. Retirada ou entrega.">
+<meta name="theme-color" content="#ff0f68">
+<meta name="description" content="Geladinho dos Sonhos em Monte Alto/SP. Tradicionais, cremosos e gourmets, com retirada grátis ou entrega.">
 <title>Geladinho dos Sonhos — Cardápio Online</title>
 <style>
-:root{--pink:#ef1767;--pink2:#ff4f8f;--wine:#741337;--ink:#2d1720;--muted:#765e67;--line:#eadde1;--green:#17a856;--sprite:url('./assets/sprite.webp');--logo:url('./assets/logo.webp');--shadow:0 18px 50px rgba(92,19,49,.12)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:radial-gradient(circle at 10% 4%,#ffe1ec 0,transparent 25rem),radial-gradient(circle at 100% 25%,#fff0d8 0,transparent 25rem),linear-gradient(180deg,#fffaf9,#fff6fa 55%,#fffdfa);min-height:100vh;position:relative;isolation:isolate}
-body:before,body:after{content:"";position:fixed;z-index:-1;pointer-events:none;background-image:var(--sprite);background-repeat:no-repeat;background-size:400% 300%;opacity:.045;filter:saturate(.9);border-radius:36px}
-body:before{width:300px;height:240px;left:-90px;top:42%;background-position:66.667% 0;transform:rotate(-9deg)}
-body:after{width:310px;height:240px;right:-100px;bottom:45px;background-position:33.333% 100%;transform:rotate(10deg)}
-button,input,textarea{font:inherit}.sprite{background-image:var(--sprite);background-repeat:no-repeat;background-size:400% 300%}
-.logo{background-image:var(--logo);background-size:contain;background-position:center;background-repeat:no-repeat}.i-trad_morango{background-position:33.333% 0}.i-leite_morango{background-position:66.667% 0}.i-leite_ninho{background-position:100% 0}.i-leite_milho{background-position:0 50%}.i-leite_chocolate{background-position:33.333% 50%}.i-leite_uva{background-position:66.667% 50%}.i-leite_maracuja{background-position:100% 50%}.i-leite_mamao{background-position:0 100%}.i-gourmet_maracuja{background-position:33.333% 100%}.i-gourmet_morango{background-position:66.667% 100%}
-.top{position:sticky;top:0;z-index:50;background:rgba(255,252,251,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(234,221,225,.8);box-shadow:0 7px 28px rgba(98,24,51,.06)}
-.nav{max-width:1120px;margin:auto;min-height:92px;padding:8px 16px;display:flex;align-items:center;gap:12px}.logoSm{width:82px;height:82px;border-radius:50%;background-color:#fff;box-shadow:0 9px 28px rgba(116,19,55,.15);flex:none}.brand b{display:block;color:var(--wine);font-size:19px}.brand span{color:var(--muted);font-size:12px}.spacer{flex:1}.cartTop{position:relative;border:1px solid var(--line);background:#fff;border-radius:15px;padding:11px 14px;cursor:pointer}.badge{position:absolute;right:-6px;top:-7px;background:var(--pink);color:#fff;border-radius:99px;min-width:21px;height:21px;padding:0 5px;display:grid;place-items:center;font-size:11px;font-weight:900}
-.hero{overflow:hidden;position:relative;background:linear-gradient(120deg,#fff0f5,#fff9ef 56%,#ffe8f0);border-bottom:1px solid var(--line)}.hero:after{content:"";position:absolute;width:410px;height:410px;border-radius:50%;right:-170px;top:-230px;background:rgba(239,23,103,.07)}
-.heroIn{max-width:1120px;margin:auto;padding:30px 16px;display:grid;grid-template-columns:1.25fr .75fr;gap:28px;align-items:center}.hero h1{margin:0 0 12px;max-width:720px;font-size:clamp(34px,5.2vw,60px);line-height:.98;letter-spacing:-2px;color:var(--wine)}.hero p{margin:0 0 18px;color:var(--muted);font-size:17px;max-width:640px;line-height:1.55}.heroLogo{width:min(290px,70vw);aspect-ratio:1/1;border-radius:50%;background-color:#fff;box-shadow:0 25px 60px rgba(116,19,55,.16);justify-self:center}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:13px;font-weight:850;color:var(--wine)}
-.wrap{max-width:1120px;margin:auto;padding:20px 16px 120px}.tabs{position:sticky;top:92px;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:rgba(255,250,249,.9);backdrop-filter:blur(12px);padding:9px 0;margin-bottom:25px}.tab{border:1px solid var(--line);background:#fff;border-radius:15px;padding:11px 8px;color:var(--wine);font-weight:900;cursor:pointer}.tab small{display:block;margin-top:2px}.tab.active{background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff;border-color:transparent}
-.section{margin:25px 0 32px}.sectionHead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}.sectionHead h2{margin:0;color:var(--wine);font-size:21px}.sectionHead b{color:var(--pink);font-size:14px}.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.card{display:grid;grid-template-columns:170px 1fr;gap:0;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:23px;overflow:hidden;box-shadow:0 12px 34px rgba(58,12,30,.08);transition:.18s}.card:hover{transform:translateY(-2px);box-shadow:0 18px 46px rgba(58,12,30,.12)}.photo{width:170px;aspect-ratio:1/1;background-color:#fff}.info{padding:15px 14px 9px;min-width:0}.info h3{margin:0 0 5px;font-size:19px}.type{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;background:#eaf6ff;color:#1270a3}.trad .type{background:#fff0e9;color:#b64c2d}.gourmet .type{background:#ffe5ef;color:#b51253}.desc{font-size:13px;color:var(--muted);line-height:1.4;margin:8px 0}.soon{font-size:12px;font-weight:900;color:#8c7580}.actions{grid-column:2;padding:0 14px 14px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.price{font-weight:950;font-size:21px;color:var(--pink)}.qty{display:flex;align-items:center;gap:7px}.qty button{width:31px;height:31px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}.qty span{min-width:20px;text-align:center;font-weight:900}.add{grid-column:1/-1;border:0;border-radius:12px;padding:10px;background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff;font-weight:950;cursor:pointer}.add:disabled{background:#ddd3d6;color:#98858c;cursor:not-allowed}
-.float{position:fixed;right:18px;bottom:18px;z-index:70;border:0;border-radius:999px;padding:15px 20px;background:linear-gradient(100deg,var(--wine),var(--pink));color:#fff;font-weight:950;box-shadow:0 17px 40px rgba(104,19,47,.32);cursor:pointer}
-footer{background:linear-gradient(115deg,#571029,#79173a 62%,#8b1d46);color:#fff}.foot{max-width:1120px;margin:auto;padding:31px 16px 34px;display:grid;grid-template-columns:1fr 1fr;gap:20px}.foot b{font-size:20px}.foot p{margin:7px 0 0;line-height:1.6;opacity:.92}.foot a{color:#fff}
-.overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(25,9,15,.56);place-items:center;padding:16px}.overlay.show{display:grid}.modal{width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:24px;box-shadow:0 30px 85px rgba(36,12,20,.26)}.modalHead{position:sticky;top:0;z-index:2;display:flex;align-items:center;padding:18px 20px;background:#fff;border-bottom:1px solid var(--line)}.modalHead h2{margin:0;font-size:21px}.close{margin-left:auto;width:36px;height:36px;border:0;border-radius:10px;background:#f7eff2;cursor:pointer}.modalBody{padding:18px 20px 22px}.cartRow{display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.cartRow small{display:block;color:var(--muted);margin:3px 0}.cartPrice{font-weight:950;color:var(--pink)}.ful{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0 9px}.ful label{border:1px solid var(--line);border-radius:14px;padding:12px;font-weight:850;background:#fff;cursor:pointer}.ful input{accent-color:var(--pink)}.delivery{display:none;background:#fff7f9;border:1px solid #f3cbd8;border-radius:15px;padding:12px}.delivery.show{display:block}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid .full{grid-column:1/-1}.grid input,textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;color:var(--ink)}.note{font-size:12px;color:var(--muted);line-height:1.4;margin:7px 0 0}textarea{min-height:72px;margin-top:10px;resize:vertical}.fee{display:none;justify-content:space-between;font-weight:850;padding-top:12px}.fee.show{display:flex}.total{display:flex;justify-content:space-between;font-size:19px;font-weight:950;padding:16px 0}.wa{width:100%;border:0;border-radius:14px;padding:14px;background:linear-gradient(90deg,#109d50,#20bd68);color:#fff;font-weight:950;cursor:pointer}.empty{text-align:center;color:var(--muted);padding:26px 10px}
-@media(max-width:820px){.heroIn{grid-template-columns:1fr;text-align:center}.heroLogo{order:-1;width:220px}.hero p{margin-left:auto;margin-right:auto}.chips{justify-content:center}.list{grid-template-columns:1fr}.foot{grid-template-columns:1fr}}
-@media(max-width:620px){.nav{min-height:76px}.logoSm{width:62px;height:62px}.brand span{display:none}.tabs{top:76px;grid-template-columns:repeat(2,1fr)}.wrap{padding-left:12px;padding-right:12px}.card{grid-template-columns:132px 1fr}.photo{width:132px}.info{padding:11px 10px 6px}.info h3{font-size:16px}.desc{font-size:11.5px;margin:6px 0}.actions{padding:0 10px 10px;gap:6px}.price{font-size:17px}.qty button{width:28px;height:28px}.add{padding:8px;font-size:12px}.float{left:15px;right:15px;bottom:13px}.ful,.grid{grid-template-columns:1fr}.grid .full{grid-column:auto}}
+:root{
+  --pink:#ff0f68; --pink2:#ff4e8e; --rose:#fff0f5; --wine:#4a101e;
+  --ink:#27161b; --muted:#705c63; --line:#f0dfe5; --cream:#fff9f7;
+  --green:#19b15b; --shadow:0 18px 45px rgba(106,25,54,.10);
+  --products:url('./assets/products-v2.webp?v=6');
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--ink);background:
+  radial-gradient(circle at 0 24%,rgba(255,160,192,.18),transparent 27rem),
+  radial-gradient(circle at 100% 70%,rgba(255,210,150,.20),transparent 28rem),
+  linear-gradient(180deg,#fff9f8 0,#fff 42%,#fff7f9 100%);
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+header{position:sticky;top:0;z-index:80;background:rgba(255,250,250,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(236,217,224,.8)}
+.nav{max-width:1220px;margin:auto;min-height:78px;padding:8px 18px;display:flex;align-items:center;gap:18px}
+.logoSmall{width:118px;height:68px;object-fit:contain;flex:none;filter:drop-shadow(0 7px 14px rgba(111,21,55,.10))}
+.menu{display:flex;align-items:center;gap:6px;margin:auto}
+.menu a,.menu button{border:0;background:transparent;text-decoration:none;padding:11px 12px;border-radius:999px;font-size:13px;font-weight:800;color:#301820}
+.menu a:hover,.menu button:hover{background:#fff0f4;color:var(--pink)}
+.menu .active{background:#fff0f4;color:var(--pink);box-shadow:inset 0 0 0 1px #ffc9db}
+.cartNav{position:relative;border:0;background:#fff;border-radius:15px;width:52px;height:52px;display:grid;place-items:center;box-shadow:var(--shadow);font-size:25px}
+.cartNav span{position:absolute;right:-4px;top:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--pink);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900}
+.hero{position:relative;overflow:hidden;background:linear-gradient(105deg,#fff0f4 0%,#fff7f3 49%,#ffdce7 100%);border-bottom:1px solid var(--line)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.9),transparent 22rem);pointer-events:none}
+.heroInner{position:relative;max-width:1220px;margin:auto;display:grid;grid-template-columns:340px 1fr 500px;align-items:center;gap:26px;padding:22px 18px 0;min-height:335px}
+.heroLogo{width:330px;max-width:100%;filter:drop-shadow(0 18px 24px rgba(97,14,43,.12));align-self:center}
+.heroText h1{font-size:clamp(38px,4.4vw,65px);line-height:.97;letter-spacing:-2px;margin:0 0 12px;color:#3a0c15;font-weight:950}
+.heroText h1 em{font-style:normal;color:var(--pink)}
+.heroText p{margin:0 0 20px;color:#4e383f;line-height:1.45;font-size:16px;max-width:540px}
+.heroArt{align-self:stretch;background:url('./assets/hero-v2.webp?v=6') center/cover no-repeat;min-height:320px;border-radius:40px 0 0 0;box-shadow:inset 22px 0 30px rgba(255,243,245,.65)}
+.features{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+.feature{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#41242e}
+.feature i{font-style:normal;font-size:21px}
+.infoBand{max-width:1220px;margin:18px auto 0;padding:0 18px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.infoBox{background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:16px;min-height:66px;padding:10px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 9px 24px rgba(110,25,53,.06)}
+.infoBox strong{display:block;font-size:14px;color:#3d1623}.infoBox small{display:block;color:var(--pink);font-weight:900;margin-top:2px}.infoBox .ic{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#fff0f5;font-size:19px}
+.infoBox.active{background:linear-gradient(120deg,var(--pink),#ff2f7c);border-color:transparent;color:#fff}.infoBox.active strong,.infoBox.active small{color:#fff}.infoBox.active .ic{background:#ffffff28}
+.infoWide{grid-column:span 2;background:linear-gradient(120deg,#fff3f4,#fff8f6)}
+.shop{max-width:1220px;margin:auto;padding:18px 18px 120px}
+.toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(220px,1.2fr);gap:10px;margin:10px 0 28px}
+.tab,.searchWrap{border:1px solid var(--line);background:#fff;border-radius:16px;min-height:58px;box-shadow:0 8px 22px rgba(105,20,52,.05)}
+.tab{padding:8px 12px;font-weight:900;color:#4c1d2c}
+.tab small{display:block;color:var(--pink);font-weight:900;margin-top:2px}
+.tab.on{background:linear-gradient(120deg,var(--pink),#ff2e7b);border-color:transparent;color:#fff}.tab.on small{color:#fff}
+.searchWrap{display:flex;align-items:center;padding:0 14px;gap:8px}.searchWrap span{font-size:18px;color:#84727a}.searchWrap input{width:100%;border:0;outline:0;background:transparent;color:#3c242c}
+.section{margin:26px 0 36px}.sectionTitle{display:flex;align-items:center;gap:12px;margin-bottom:12px}.sectionTitle h2{margin:0;font-size:25px;color:#4d1020}.sectionTitle p{margin:0;color:var(--muted);font-size:14px}.sectionPrice{margin-left:auto;background:#ffe5ed;color:var(--pink);padding:8px 14px;border-radius:999px;font-weight:950}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:#fff;border:1px solid #f0e1e5;border-radius:17px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;transition:.2s transform,.2s box-shadow}
+.card:hover{transform:translateY(-3px);box-shadow:0 23px 50px rgba(106,25,54,.14)}
+.photo{width:100%;aspect-ratio:1.65/1;background-image:var(--products);background-repeat:no-repeat;background-size:500% 200%;position:relative}
+.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 72%,rgba(42,12,23,.08))}
+.p0{background-position:0 0}.p1{background-position:25% 0}.p2{background-position:50% 0}.p3{background-position:75% 0}.p4{background-position:100% 0}
+.p5{background-position:0 100%}.p6{background-position:25% 100%}.p7{background-position:50% 100%}.p8{background-position:75% 100%}.p9{background-position:100% 100%}
+.cardBody{padding:12px 13px 13px;display:flex;flex-direction:column;flex:1}
+.cardBody h3{margin:0 0 5px;font-size:18px}.desc{font-size:13px;line-height:1.35;color:var(--muted);min-height:36px;margin-bottom:8px}.price{font-size:20px;font-weight:950;color:var(--pink);margin-top:auto}
+.cardActions{display:flex;gap:7px;margin-top:10px}.qty{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}.qty button{border:0;background:#fff;width:31px;height:36px;font-weight:900}.qty span{width:26px;text-align:center;font-weight:900}.add{border:0;background:linear-gradient(120deg,var(--pink),#ff337d);color:#fff;border-radius:10px;padding:0 12px;font-weight:900;flex:1}.add:disabled{background:#d7cfd2;color:#8f8589}.tagSoon{display:inline-flex;align-self:flex-start;background:#f2ecee;color:#806e74;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;margin-bottom:6px}
+.how{margin-top:44px;border-radius:26px;background:linear-gradient(120deg,#541126,#7c173b);color:#fff;padding:28px;box-shadow:var(--shadow)}
+.how h2{margin:0 0 18px;font-size:26px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.step{background:#ffffff12;border:1px solid #ffffff22;border-radius:16px;padding:16px}.step b{display:block;margin-bottom:4px}.step span{font-size:13px;opacity:.85;line-height:1.45}
+footer{background:#3f0d1c;color:#fff}.footer{max-width:1220px;margin:auto;padding:28px 18px;display:grid;grid-template-columns:1fr 1fr;gap:22px}.footerLogo{width:180px;filter:drop-shadow(0 8px 16px #0002)}footer p{font-size:13px;line-height:1.6;color:#f5e5ea}footer a{color:#fff}
+.floatOrder{position:fixed;z-index:75;right:20px;bottom:20px;border:0;background:linear-gradient(120deg,var(--pink),#ff2e7b);color:#fff;border-radius:999px;padding:14px 18px;font-weight:950;box-shadow:0 16px 36px rgba(255,15,104,.30)}
+.floatOrder span{background:#fff;color:var(--pink);display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:99px;margin-left:4px}
+.overlay{position:fixed;inset:0;z-index:150;background:#250c1588;backdrop-filter:blur(5px);display:none;place-items:center;padding:16px}.overlay.show{display:grid}
+.modal{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;box-shadow:0 30px 80px #18081066}
+.mh{position:sticky;top:0;background:#fff;z-index:2;display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.mh h2{margin:0;font-size:21px}.close{margin-left:auto;border:0;background:#f7eef1;border-radius:10px;width:38px;height:38px}
+.mb{padding:18px 20px 22px}.cartRow{display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.cartRow small{display:block;color:var(--muted);margin:3px 0 7px}.rowPrice{font-weight:950;color:var(--pink)}
+.ful{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 10px}.ful label{border:1px solid var(--line);border-radius:14px;padding:12px;font-weight:850}.addressBox{display:none;background:#fff7f9;border:1px solid #f5cfdb;border-radius:16px;padding:13px;margin:10px 0}.addressBox.show{display:block}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.formGrid .full{grid-column:1/-1}.formGrid input,textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;outline:0}.formGrid input:focus,textarea:focus{border-color:#ff8db5;box-shadow:0 0 0 3px #ffecf3}.note{font-size:12px;color:var(--muted);line-height:1.4}.obs{width:100%;min-height:72px;border:1px solid var(--line);border-radius:11px;padding:11px;resize:vertical}.totLine{display:flex;justify-content:space-between;padding-top:12px;font-weight:800}.total{display:flex;justify-content:space-between;padding:16px 0;font-size:19px;font-weight:950}.wa{width:100%;border:0;background:var(--green);color:#fff;border-radius:14px;padding:14px;font-weight:950;font-size:15px}
+.trackBox{text-align:center}.trackBox p{color:var(--muted);line-height:1.5}.trackInput{display:flex;gap:8px}.trackInput input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px}.trackInput button{border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:900;padding:0 16px}
+@media(max-width:1050px){
+.heroInner{grid-template-columns:260px 1fr}.heroArt{display:none}.heroLogo{width:250px}.infoBand{grid-template-columns:repeat(3,1fr)}.infoWide{grid-column:span 1}.cards{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:780px){
+.menu{display:none}.nav{min-height:68px}.logoSmall{width:100px;height:54px}.heroInner{grid-template-columns:1fr;padding-top:18px;text-align:center}.heroLogo{width:250px;justify-self:center}.heroText h1{font-size:40px;letter-spacing:-1px}.heroText p{margin-left:auto;margin-right:auto}.features{grid-template-columns:repeat(2,1fr);text-align:left}.infoBand{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:repeat(2,1fr)}.searchWrap{grid-column:1/-1}.cards{grid-template-columns:repeat(2,1fr)}.footer{grid-template-columns:1fr}.steps{grid-template-columns:1fr}
+}
+@media(max-width:500px){
+.heroInner{padding-left:14px;padding-right:14px}.heroLogo{width:220px}.heroText h1{font-size:34px}.infoBand,.shop{padding-left:10px;padding-right:10px}.infoBox{padding:9px 10px}.cards{gap:9px}.cardBody{padding:10px}.desc{min-height:49px;font-size:12px}.cardBody h3{font-size:16px}.price{font-size:18px}.cardActions{flex-direction:column}.add{min-height:38px}.qty{justify-content:center}.qty span{flex:1}.sectionTitle p{display:none}.sectionPrice{font-size:12px}.ful,.formGrid{grid-template-columns:1fr}.formGrid .full{grid-column:auto}.floatOrder{right:12px;bottom:12px}
+}
+</style>
+
+<style>
+.deliveryNote{
+  max-width:1120px;margin:18px auto 4px;padding:12px 16px;
+  display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;
+  color:#5e3a46;background:rgba(255,255,255,.72);border:1px solid #f0dfe5;
+  border-radius:16px;box-shadow:0 8px 28px rgba(106,25,54,.06);
+  font-size:14px
+}
+.deliveryNote strong{color:#ff0f68}
+@media(max-width:600px){.deliveryNote{margin:12px 14px 4px;justify-content:flex-start}}
 </style>
 </head>
 <body>
-<header class="top"><div class="nav"><div class="logo logoSm" role="img" aria-label="Logo Geladinho dos Sonhos"></div><div class="brand"><b>Geladinho dos Sonhos</b><span>Cremosos, refrescantes e deliciosos</span></div><div class="spacer"></div><button class="cartTop" id="cartTop">🛒<span class="badge" id="badge">0</span></button></div></header>
-<section class="hero"><div class="heroIn"><div><h1>Mais que um geladinho, é um momento de felicidade!</h1><p>Escolha seus sabores, monte seu pedido e decida entre retirada no local ou entrega em Monte Alto.</p><div class="chips"><span class="chip">Tradicional · R$ 1,50</span><span class="chip">Cremoso · R$ 3,50</span><span class="chip">Gourmet · R$ 5,50</span><span class="chip">Entrega · R$ 6,00</span></div></div><div class="logo heroLogo" role="img" aria-label="Geladinho dos Sonhos"></div></div></section>
-<main class="wrap"><div class="tabs"><button class="tab active" data-filter="Todos">Todos</button><button class="tab" data-filter="Tradicional">Tradicionais<small>R$ 1,50</small></button><button class="tab" data-filter="Cremoso">Cremoso<small>R$ 3,50</small></button><button class="tab" data-filter="Gourmet">Gourmets<small>R$ 5,50</small></button></div><div id="catalog"></div></main>
-<button class="float" id="float">💬 Faça seu pedido · <span id="count">0</span></button>
-<footer><div class="foot"><div><b>Geladinho dos Sonhos</b><p>Feito com carinho para deixar seu dia mais gostoso.</p></div><div><b>Faça seu pedido</b><p>📱 <a href="https://wa.me/5516992542888" target="_blank">(16) 99254-2888</a><br>📍 Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP<br>🛵 Entrega em Monte Alto: taxa fixa de R$ 6,00</p></div></div></footer>
-<div class="overlay" id="ov"><div class="modal"><div class="modalHead"><h2>🛒 Meu pedido</h2><button class="close" id="close">✕</button></div><div class="modalBody"><div id="rows"></div><div class="ful"><label><input type="radio" name="ful" value="retirada" checked> 🏠 Retirar no local</label><label><input type="radio" name="ful" value="entrega"> 🛵 Entrega + R$ 6,00</label></div><div class="delivery" id="delivery"><div class="grid"><input class="full" id="name" placeholder="Seu nome"><input id="cep" inputmode="numeric" maxlength="9" placeholder="CEP"><input id="num" placeholder="Número"><input class="full" id="street" placeholder="Rua"><input id="district" placeholder="Bairro"><input id="comp" placeholder="Complemento (opcional)"><input class="full" id="reference" placeholder="Ponto de referência (opcional)"></div><p class="note">Entregas somente em Monte Alto/SP. Ao informar o CEP, tentamos preencher rua e bairro automaticamente.</p></div><textarea id="obs" placeholder="Observação (opcional)"></textarea><div class="fee" id="fee"><span>Taxa de entrega</span><span>R$ 6,00</span></div><div class="total"><span>Total</span><span id="total">R$ 0,00</span></div><button class="wa" id="wa">Enviar pedido pelo WhatsApp</button></div></div></div>
+<header>
+  <div class="nav">
+    <img class="logoSmall" src="./assets/logo-oficial.webp?v=6" alt="Geladinho dos Sonhos">
+    <nav class="menu">
+      <a class="active" href="#inicio">⌂ Início</a>
+      <a href="#cardapio">♧ Cardápio</a>
+      <a href="#como-pedir">▣ Como pedir</a>
+      <button type="button" id="openTrack">⌖ Acompanhar pedido</button>
+      <a href="#contato">☎ Contato</a>
+    </nav>
+    <button class="cartNav" id="cartTop" aria-label="Abrir carrinho">🛒<span id="cartBadge">0</span></button>
+  </div>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="heroInner">
+    <img class="heroLogo" src="./assets/logo-oficial.webp?v=6" alt="Geladinho dos Sonhos">
+    <div class="heroText">
+      <h1>Mais que um geladinho, é um <em>momento de felicidade!</em></h1>
+      <p>Cremosos, refrescantes e deliciosos para todos os momentos. Escolha seus sabores, monte seu pedido e finalize direto pelo WhatsApp.</p>
+      <div class="features">
+        <div class="feature"><i>🌿</i><span>Ingredientes<br>de qualidade</span></div>
+        <div class="feature"><i>❄️</i><span>Sempre<br>fresquinhos</span></div>
+        <div class="feature"><i>💗</i><span>Feitos<br>com carinho</span></div>
+        <div class="feature"><i>🛵</i><span>Entrega em<br>Monte Alto - SP</span></div>
+      </div>
+    </div>
+    <div class="heroArt" aria-label="Geladinhos variados"></div>
+  </div>
+</section>
+
+<div class="deliveryNote">
+  <span>📍 Retirada no local gratuita.</span>
+  <span>🛵 Para entrega em Monte Alto/SP será cobrada taxa fixa de <strong>R$ 6,00</strong>.</span>
+</div>
+
+<main class="shop" id="cardapio">
+  <div class="toolbar">
+    <button class="tab on" data-filter="Todos">▦ Todos</button>
+    <button class="tab" data-filter="Tradicional">🍓 Tradicionais<small>R$ 1,50</small></button>
+    <button class="tab" data-filter="Cremoso">🥛 Cremoso<small>R$ 3,50</small></button>
+    <button class="tab" data-filter="Gourmet">♕ Gourmets<small>R$ 5,50</small></button>
+    <label class="searchWrap"><span>⌕</span><input id="search" type="search" placeholder="Buscar sabor..."></label>
+  </div>
+  <div id="catalog"></div>
+
+  <section class="how" id="como-pedir">
+    <h2>Como pedir</h2>
+    <div class="steps">
+      <div class="step"><b>1. Escolha os sabores</b><span>Use o cardápio, ajuste a quantidade e adicione ao carrinho.</span></div>
+      <div class="step"><b>2. Retirada ou entrega</b><span>Retire no local gratuitamente ou escolha entrega em Monte Alto por R$ 6,00.</span></div>
+      <div class="step"><b>3. Finalize pelo WhatsApp</b><span>Seu pedido, total e endereço são enviados organizados para nosso atendimento.</span></div>
+    </div>
+  </section>
+</main>
+
+<footer id="contato">
+  <div class="footer">
+    <div>
+      <img class="footerLogo" src="./assets/logo-oficial.webp?v=6" alt="Geladinho dos Sonhos">
+      <p>Cremosos, refrescantes e deliciosos. Feitos com carinho em Monte Alto/SP.</p>
+    </div>
+    <div>
+      <strong>Faça seu pedido</strong>
+      <p>📱 <a href="https://wa.me/5516992542888" target="_blank" rel="noopener">(16) 99254-2888</a><br>
+      📍 Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP<br>
+      🛵 Entrega em Monte Alto: taxa fixa de R$ 6,00</p>
+    </div>
+  </div>
+</footer>
+
+<button class="floatOrder" id="floatOrder">🛒 Fazer pedido <span id="floatCount">0</span></button>
+
+<div class="overlay" id="cartOverlay">
+  <div class="modal">
+    <div class="mh"><h2>Meu pedido</h2><button class="close" id="closeCart">✕</button></div>
+    <div class="mb">
+      <div id="cartRows"></div>
+      <div class="ful">
+        <label><input type="radio" name="fulfillment" value="retirada" checked> 🏠 Retirada no local</label>
+        <label><input type="radio" name="fulfillment" value="entrega"> 🛵 Entrega + R$ 6,00</label>
+      </div>
+      <div class="addressBox" id="addressBox">
+        <div class="formGrid">
+          <input class="full" id="customerName" placeholder="Seu nome">
+          <input id="cep" inputmode="numeric" maxlength="9" placeholder="CEP">
+          <input id="number" placeholder="Número">
+          <input class="full" id="street" placeholder="Rua">
+          <input id="bairro" placeholder="Bairro">
+          <input id="complement" placeholder="Complemento (opcional)">
+          <input class="full" id="reference" placeholder="Ponto de referência (opcional)">
+        </div>
+        <p class="note">Entregas atualmente em Monte Alto/SP. Ao informar o CEP, tentamos preencher rua e bairro automaticamente.</p>
+      </div>
+      <textarea class="obs" id="obs" placeholder="Observação do pedido (opcional)"></textarea>
+      <div class="totLine" id="feeLine" hidden><span>Taxa de entrega</span><span>R$ 6,00</span></div>
+      <div class="total"><span>Total</span><span id="totalValue">R$ 0,00</span></div>
+      <button class="wa" id="sendWhats">Enviar pedido pelo WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="trackOverlay">
+  <div class="modal">
+    <div class="mh"><h2>Acompanhar pedido</h2><button class="close" id="closeTrack">✕</button></div>
+    <div class="mb trackBox">
+      <p>Esta área já está reservada para a Etapa 2. Quando o sistema de pedidos for ativado, o cliente poderá informar o código e acompanhar o status até a entrega.</p>
+      <div class="trackInput"><input placeholder="Código do pedido" disabled><button disabled>Consultar</button></div>
+    </div>
+  </div>
+</div>
+
 <script>
-const fallbackP=[
-{id:'trad-morango',name:'Morango',cat:'Tradicional',price:1.5,img:'trad_morango',desc:'Sabor clássico e refrescante de morango.',active:true},
-{id:'leite-morango',name:'Morango',cat:'Cremoso',price:3.5,img:'leite_morango',desc:'Geladinho cremoso ao leite sabor morango.',active:true},
-{id:'leite-ninho',name:'Leite Ninho',cat:'Cremoso',price:3.5,img:'leite_ninho',desc:'Geladinho cremoso ao leite com leite em pó.',active:true},
-{id:'leite-milho',name:'Milho Verde',cat:'Cremoso',price:3.5,img:'leite_milho',desc:'Geladinho cremoso ao leite sabor milho verde.',active:true},
-{id:'leite-chocolate',name:'Chocolate',cat:'Cremoso',price:3.5,img:'leite_chocolate',desc:'Geladinho cremoso ao leite sabor chocolate.',active:true},
-{id:'leite-uva',name:'Uva',cat:'Cremoso',price:3.5,img:'leite_uva',desc:'Geladinho cremoso ao leite sabor uva.',active:true},
-{id:'leite-maracuja',name:'Maracujá',cat:'Cremoso',price:3.5,img:'leite_maracuja',desc:'Geladinho cremoso ao leite sabor maracujá.',active:true},
-{id:'leite-mamao',name:'Mamão Papaya',cat:'Cremoso',price:3.5,img:'leite_mamao',desc:'Geladinho cremoso ao leite sabor mamão papaya.',active:false},
-{id:'gourmet-maracuja',name:'Maracujá Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_maracuja',desc:'Sorvete de maracujá com calda de maracujá.',active:true},
-{id:'gourmet-morango',name:'Morango Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_morango',desc:'Sorvete de morango com calda de morango.',active:true}
- ];
-let P=[...fallbackP];
+const fallbackProducts=[
+{id:'trad-morango',name:'Morango',cat:'Tradicional',price:1.50,img:0,desc:'Sabor clássico, leve e refrescante de morango.',active:true},
+{id:'leite-morango',name:'Morango',cat:'Cremoso',price:3.50,img:1,desc:'Geladinho cremoso ao leite com sabor de morango.',active:true},
+{id:'leite-ninho',name:'Leite Ninho',cat:'Cremoso',price:3.50,img:2,desc:'Cremoso ao leite com leite em pó e textura suave.',active:true},
+{id:'leite-milho',name:'Milho Verde',cat:'Cremoso',price:3.50,img:3,desc:'Cremoso ao leite com aquele sabor gostoso de milho verde.',active:true},
+{id:'leite-chocolate',name:'Chocolate',cat:'Cremoso',price:3.50,img:4,desc:'Geladinho cremoso ao leite com sabor intenso de chocolate.',active:true},
+{id:'leite-uva',name:'Uva',cat:'Cremoso',price:3.50,img:5,desc:'Cremoso ao leite com sabor marcante de uva.',active:true},
+{id:'leite-maracuja',name:'Maracujá',cat:'Cremoso',price:3.50,img:6,desc:'Cremoso ao leite com o sabor equilibrado do maracujá.',active:true},
+{id:'leite-mamao',name:'Mamão Papaya',cat:'Cremoso',price:3.50,img:7,desc:'Cremoso ao leite com sabor suave de mamão papaya.',active:false},
+{id:'gourmet-maracuja',name:'Maracujá Gourmet',cat:'Gourmet',price:5.50,img:8,desc:'Sorvete de maracujá com calda de maracujá.',active:true},
+{id:'gourmet-morango',name:'Morango Gourmet',cat:'Gourmet',price:5.50,img:9,desc:'Sorvete de morango com calda de morango.',active:true}
+];
+let products=[...fallbackProducts];
+
 const SUPABASE_URL='https://qpqruhcspbdxjcnbhdhn.supabase.co';
 const SUPABASE_KEY='sb_publishable_JVYvfl7nrRmlm17qF_KI8A_1H8mtvLk';
-const imageClassBySlug={
- 'trad-morango':'trad_morango','leite-morango':'leite_morango','leite-ninho':'leite_ninho','leite-milho':'leite_milho','leite-chocolate':'leite_chocolate','leite-uva':'leite_uva','leite-maracuja':'leite_maracuja','leite-mamao':'leite_mamao','gourmet-maracuja':'gourmet_maracuja','gourmet-morango':'gourmet_morango'
+const imgIndexBySlug={
+  'trad-morango':0,'leite-morango':1,'leite-ninho':2,'leite-milho':3,'leite-chocolate':4,
+  'leite-uva':5,'leite-maracuja':6,'leite-mamao':7,'gourmet-maracuja':8,'gourmet-morango':9
 };
-async function loadCatalog(){
- try{
-  const r=await fetch(`${SUPABASE_URL}/rest/v1/products?select=slug,name,category,description,price,stock,active,image_url,sort_order&order=sort_order.asc`,{headers:{apikey:SUPABASE_KEY}});
-  if(!r.ok) throw new Error('Falha ao carregar produtos');
-  const rows=await r.json();
-  if(Array.isArray(rows)&&rows.length){
-   P=rows.map(x=>({id:x.slug,name:x.name,cat:x.category,price:Number(x.price),img:imageClassBySlug[x.slug]||'',imageUrl:x.image_url||'',desc:x.description||'',active:!!x.active&&Number(x.stock)>0,stock:Number(x.stock)||0}));
-  }
- }catch(e){console.warn('Usando catálogo local.',e);P=[...fallbackP]}
- render();badgeNow();updateTotal();
+async function loadProducts(){
+  try{
+    const url=`${SUPABASE_URL}/rest/v1/products?select=slug,name,category,description,price,stock,active,image_url,sort_order&order=sort_order.asc`;
+    const r=await fetch(url,{headers:{apikey:SUPABASE_KEY}});
+    if(!r.ok) throw new Error('Falha ao carregar catálogo');
+    const rows=await r.json();
+    if(Array.isArray(rows)&&rows.length){
+      products=rows.map(x=>({
+        id:x.slug,name:x.name,cat:x.category,price:Number(x.price),img:imgIndexBySlug[x.slug]??null,
+        imageUrl:x.image_url||'',desc:x.description||'',active:!!x.active&&Number(x.stock)>0,stock:Number(x.stock)||0
+      }));
+    }
+  }catch(e){console.warn('Catálogo online indisponível; usando cópia local.',e);products=[...fallbackProducts]}
+  render();updateCartCount();
 }
-let cart=JSON.parse(localStorage.getItem('gds_cart_online')||'{}'),draft={},filter='Todos';
-const money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),by=id=>P.find(p=>p.id===id),mode=()=>document.querySelector('input[name=ful]:checked').value;
-function save(){localStorage.setItem('gds_cart_online',JSON.stringify(cart))}
-function cls(c){return c==='Gourmet'?'gourmet':c==='Tradicional'?'trad':'leite'}
+
+const money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+let cart={},draft={},filter='Todos',term='';
+
+function visibleProducts(cat){
+  return products.filter(p=>(cat==='Todos'||p.cat===cat)&&(!term||(`${p.name} ${p.cat} ${p.desc}`).toLowerCase().includes(term)));
+}
+function cardHTML(p){
+  const q=draft[p.id]||1;
+  return `<article class="card">
+    <div class="photo ${p.img!==null?`p${p.img}`:''}" ${p.imageUrl?`style="background-image:url('${p.imageUrl.replace(/'/g,'%27')}');background-size:cover;background-position:center"`:''} role="img" aria-label="${p.name}"></div>
+    <div class="cardBody">
+      <h3>${p.name}</h3>
+      ${p.active?'':'<span class="tagSoon">Em breve</span>'}
+      <div class="desc">${p.desc}</div>
+      <div class="price">${money(p.price)}</div>
+      <div class="cardActions">
+        <div class="qty">
+          <button type="button" onclick="changeDraft('${p.id}',-1)" ${p.active?'':'disabled'}>−</button>
+          <span>${q}</span>
+          <button type="button" onclick="changeDraft('${p.id}',1)" ${p.active?'':'disabled'}>+</button>
+        </div>
+        <button class="add" type="button" onclick="addProduct('${p.id}')" ${p.active?'':'disabled'}>🛒 Adicionar</button>
+      </div>
+    </div>
+  </article>`;
+}
 function render(){
- let h='';
- ['Tradicional','Cremoso','Gourmet'].forEach(c=>{if(filter!=='Todos'&&filter!==c)return;const arr=P.filter(p=>p.cat===c),pr=c==='Tradicional'?1.5:c==='Cremoso'?3.5:5.5;
- h+=`<section class="section"><div class="sectionHead"><h2>${c==='Gourmet'?'💎':c==='Cremoso'?'🥛':'🍓'} ${c.toUpperCase()}</h2><b>${money(pr)} cada</b></div><div class="list">`;
- arr.forEach(p=>{const q=draft[p.id]||0;h+=`<article class="card ${cls(p.cat)}"><div class="photo ${p.imageUrl?'':'sprite i-'+p.img}" ${p.imageUrl?`style="background-image:url('${p.imageUrl.replace(/'/g,'%27')}');background-size:cover;background-position:center;background-repeat:no-repeat"`:''} role="img" aria-label="${p.name} — ${p.cat}"></div><div class="info"><h3>${p.name}</h3><span class="type">${p.cat}</span><div class="desc">${p.desc}</div>${p.active?'':'<div class="soon">Em breve</div>'}</div><div class="actions"><div class="price">${money(p.price)}</div><div class="qty"><button onclick="dq('${p.id}',-1)" ${p.active?'':'disabled'}>−</button><span>${q}</span><button onclick="dq('${p.id}',1)" ${p.active?'':'disabled'}>+</button></div><button class="add" onclick="add('${p.id}')" ${p.active?'':'disabled'}>🛒 Adicionar</button></div></article>`});h+='</div></section>'});
- catalog.innerHTML=h;
+  const catalog=document.getElementById('catalog');
+  let html='';
+  ['Tradicional','Cremoso','Gourmet'].forEach(cat=>{
+    if(filter!=='Todos'&&filter!==cat)return;
+    const arr=visibleProducts(cat);
+    if(!arr.length)return;
+    const price=cat==='Tradicional'?1.5:cat==='Cremoso'?3.5:5.5;
+    const icon=cat==='Tradicional'?'🍓':cat==='Cremoso'?'🥛':'♕';
+    const subtitle=cat==='Tradicional'?'Sabores clássicos e refrescantes!':cat==='Cremoso'?'Cremosos e com aquele sabor especial!':'Uma experiência mais recheada e especial!';
+    html+=`<section class="section">
+      <div class="sectionTitle"><h2>${icon} ${cat.toUpperCase()}</h2><p>${subtitle}</p><span class="sectionPrice">${money(price)} cada</span></div>
+      <div class="cards">${arr.map(cardHTML).join('')}</div>
+    </section>`;
+  });
+  if(!html) html='<p style="text-align:center;color:#705c63;padding:40px">Nenhum sabor encontrado.</p>';
+  catalog.innerHTML=html;
 }
-function dq(id,d){const p=by(id);if(!p.active)return;draft[id]=Math.max(0,(draft[id]||0)+d);render()}
-function add(id){const p=by(id);if(!p.active)return;cart[id]=(cart[id]||0)+(draft[id]||1);draft[id]=0;save();badgeNow();render()}
-function badgeNow(){const n=Object.values(cart).reduce((a,b)=>a+b,0);badge.textContent=count.textContent=n}
-function subtotal(){return Object.entries(cart).reduce((s,[id,q])=>s+by(id).price*q,0)}
-function updateTotal(){fee.classList.toggle('show',mode()==='entrega');total.textContent=money(subtotal()+(mode()==='entrega'?6:0))}
-function cartView(){const ids=Object.keys(cart).filter(id=>cart[id]>0);rows.innerHTML=ids.length?ids.map(id=>{const p=by(id),q=cart[id];return`<div class="cartRow"><div><b>${p.name}</b><small>${p.cat} · ${q} un.</small><div class="qty"><button onclick="cc('${id}',-1)">−</button><span>${q}</span><button onclick="cc('${id}',1)">+</button></div></div><div class="cartPrice">${money(p.price*q)}</div></div>`}).join(''):'<div class="empty">Seu carrinho está vazio.</div>';updateTotal()}
-function cc(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();badgeNow();cartView()}
-function openCart(){cartView();ov.classList.add('show')}
-async function cepLookup(){const c=cep.value.replace(/\D/g,'');if(c.length!==8)return;try{const d=await(await fetch(`https://viacep.com.br/ws/${c}/json/`)).json();if(d.erro)return alert('CEP não encontrado.');if((d.localidade||'').toLowerCase()!=='monte alto'||d.uf!=='SP')return alert('No momento, entregamos somente em Monte Alto/SP.');street.value=d.logradouro||'';district.value=d.bairro||''}catch(e){console.warn(e)}}
-function send(){const ids=Object.keys(cart).filter(id=>cart[id]>0);if(!ids.length)return alert('Adicione pelo menos um geladinho.');let sub=0,lines=['Olá! Quero fazer um pedido:',''];ids.forEach(id=>{const p=by(id),q=cart[id];sub+=p.price*q;lines.push(`• ${q}x ${p.name} (${p.cat}) — ${money(p.price*q)}`)});lines.push('',`Subtotal: ${money(sub)}`);if(mode()==='entrega'){const c=cep.value.replace(/\D/g,'');if(!name.value.trim()||c.length!==8||!street.value.trim()||!num.value.trim()||!district.value.trim())return alert('Preencha nome, CEP, rua, número e bairro.');if(!/^1591\d{4}$/.test(c))return alert('Confira o CEP de Monte Alto/SP.');lines.push(`Taxa de entrega: ${money(6)}`,`Total: ${money(sub+6)}`,'',`Entrega para: ${name.value.trim()}`,`${street.value.trim()}, ${num.value.trim()}${comp.value.trim()?` - ${comp.value.trim()}`:''}`,`${district.value.trim()} — Monte Alto/SP — CEP ${cep.value.trim()}${reference.value.trim()?`\nReferência: ${reference.value.trim()}`:''}`)}else lines.push(`Total: ${money(sub)}`,'','Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP');if(obs.value.trim())lines.push('',`Observação: ${obs.value.trim()}`);window.open('https://wa.me/5516992542888?text='+encodeURIComponent(lines.join('\n')),'_blank')}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
-document.querySelectorAll('input[name=ful]').forEach(r=>r.onchange=()=>{delivery.classList.toggle('show',mode()==='entrega');updateTotal()});
-cartTop.onclick=float.onclick=openCart;close.onclick=()=>ov.classList.remove('show');ov.onclick=e=>{if(e.target===ov)ov.classList.remove('show')};cep.onblur=cepLookup;wa.onclick=send;loadCatalog();
+function changeDraft(id,d){draft[id]=Math.max(1,(draft[id]||1)+d);render();}
+function addProduct(id){
+  const p=products.find(x=>x.id===id); if(!p||!p.active)return;
+  cart[id]=(cart[id]||0)+(draft[id]||1); draft[id]=1; updateCartCount(); render();
+}
+function updateCartCount(){
+  const c=Object.values(cart).reduce((a,b)=>a+b,0);
+  document.getElementById('cartBadge').textContent=c;
+  document.getElementById('floatCount').textContent=c;
+}
+function subtotal(){
+  return Object.entries(cart).reduce((sum,[id,q])=>sum+products.find(p=>p.id===id).price*q,0);
+}
+function fulfillment(){return document.querySelector('input[name="fulfillment"]:checked').value}
+function updateTotal(){
+  const delivery=fulfillment()==='entrega';
+  document.getElementById('feeLine').hidden=!delivery;
+  document.getElementById('totalValue').textContent=money(subtotal()+(delivery?6:0));
+}
+function renderCart(){
+  const ids=Object.keys(cart).filter(id=>cart[id]>0);
+  const rows=document.getElementById('cartRows');
+  rows.innerHTML=ids.length?ids.map(id=>{
+    const p=products.find(x=>x.id===id),q=cart[id];
+    return `<div class="cartRow"><div><b>${p.name}</b><small>${p.cat} · ${q} unidade(s)</small><div class="qty"><button onclick="cartQty('${id}',-1)">−</button><span>${q}</span><button onclick="cartQty('${id}',1)">+</button></div></div><div class="rowPrice">${money(p.price*q)}</div></div>`;
+  }).join(''):'<p style="text-align:center;color:#705c63;padding:24px">Seu carrinho está vazio.</p>';
+  updateTotal();
+}
+function cartQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCartCount();renderCart();}
+function openCart(){renderCart();document.getElementById('cartOverlay').classList.add('show')}
+function closeCart(){document.getElementById('cartOverlay').classList.remove('show')}
+async function lookupCep(){
+  const cep=document.getElementById('cep').value.replace(/\D/g,'');
+  if(cep.length!==8)return;
+  try{
+    const d=await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
+    if(d.erro)return alert('CEP não encontrado.');
+    if((d.localidade||'').toLowerCase()!=='monte alto'||d.uf!=='SP')return alert('No momento, entregamos somente em Monte Alto/SP.');
+    document.getElementById('street').value=d.logradouro||'';
+    document.getElementById('bairro').value=d.bairro||'';
+  }catch(e){}
+}
+function sendWhats(){
+  const ids=Object.keys(cart).filter(id=>cart[id]>0);
+  if(!ids.length)return alert('Adicione pelo menos um geladinho ao pedido.');
+  const delivery=fulfillment()==='entrega';
+  let lines=['Olá! Quero fazer um pedido no Geladinho dos Sonhos:',''];
+  ids.forEach(id=>{
+    const p=products.find(x=>x.id===id),q=cart[id];
+    lines.push(`• ${q}x ${p.name} (${p.cat}) — ${money(p.price*q)}`);
+  });
+  const sub=subtotal(); lines.push('',`Subtotal: ${money(sub)}`);
+  if(delivery){
+    const name=document.getElementById('customerName').value.trim();
+    const cep=document.getElementById('cep').value.replace(/\D/g,'');
+    const street=document.getElementById('street').value.trim();
+    const num=document.getElementById('number').value.trim();
+    const bairro=document.getElementById('bairro').value.trim();
+    const comp=document.getElementById('complement').value.trim();
+    const ref=document.getElementById('reference').value.trim();
+    if(!name||cep.length!==8||!street||!num||!bairro)return alert('Preencha nome, CEP, rua, número e bairro para entrega.');
+    lines.push(`Taxa de entrega: ${money(6)}`,`Total: ${money(sub+6)}`,'',`Entrega para: ${name}`,`${street}, ${num}${comp?` - ${comp}`:''}`,`${bairro} — Monte Alto/SP — CEP ${cep}${ref?`\nReferência: ${ref}`:''}`);
+  }else{
+    lines.push(`Total: ${money(sub)}`,'','Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP');
+  }
+  const obs=document.getElementById('obs').value.trim(); if(obs)lines.push('',`Observação: ${obs}`);
+  window.open('https://wa.me/5516992542888?text='+encodeURIComponent(lines.join('\n')),'_blank');
+}
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('on',x.classList.contains('tab')&&x.dataset.filter===f));
+  document.querySelectorAll('.infoBox[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===f));
+  render();
+  document.getElementById('cardapio').scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('[data-filter]').forEach(el=>el.addEventListener('click',()=>setFilter(el.dataset.filter)));
+document.getElementById('search').addEventListener('input',e=>{term=e.target.value.trim().toLowerCase();render()});
+document.getElementById('cartTop').onclick=document.getElementById('floatOrder').onclick=openCart;
+document.getElementById('closeCart').onclick=closeCart;
+document.getElementById('cartOverlay').addEventListener('click',e=>{if(e.target.id==='cartOverlay')closeCart()});
+document.querySelectorAll('input[name="fulfillment"]').forEach(r=>r.addEventListener('change',()=>{
+  const del=fulfillment()==='entrega';
+  document.getElementById('addressBox').classList.toggle('show',del);
+  updateTotal();
+}));
+document.getElementById('cep').addEventListener('blur',lookupCep);
+document.getElementById('sendWhats').onclick=sendWhats;
+document.getElementById('openTrack').onclick=()=>{window.location.href='./acompanhar/'};
+document.getElementById('closeTrack').onclick=()=>document.getElementById('trackOverlay').classList.remove('show');
+document.getElementById('trackOverlay').addEventListener('click',e=>{if(e.target.id==='trackOverlay')document.getElementById('trackOverlay').classList.remove('show')});
+loadProducts();
 </script>
-</body></html>
+</body>
+</html>

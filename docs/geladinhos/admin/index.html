@@ -9,13 +9,14 @@
 </style>
 </head>
 <body>
-<div class="bar"><div class="top"><img class="logo" src="../assets/logo.webp" alt="Geladinho dos Sonhos"><div class="brand"><b>Geladinho dos Sonhos</b><small>Administração + visão do cliente</small></div><div class="tabs"><button id="adminTab" class="on">⚙️ Administrar</button><button id="clientTab">👁️ Loja (cliente)</button><button id="refreshBtn" class="refresh">↻ Atualizar prévia</button></div></div></div>
+<div class="bar"><div class="top"><img class="logo" src="../assets/logo-oficial.webp?v=6" alt="Geladinho dos Sonhos"><div class="brand"><b>Geladinho dos Sonhos</b><small>Administração + visão do cliente</small></div><div class="tabs"><button id="adminTab" class="on">⚙️ Administrar</button><button id="clientTab">👁️ Loja (cliente)</button><button id="refreshBtn" class="refresh">↻ Atualizar prévia</button></div></div></div>
 <div class="stage"><iframe id="adminFrame" class="view on" src="manage.html" title="Painel administrativo"></iframe><iframe id="clientFrame" class="view" src="../?preview=1" title="Loja como cliente"></iframe><div id="previewTag" class="previewTag">Prévia da loja real</div></div>
 <script>
 const a=document.getElementById('adminFrame'),c=document.getElementById('clientFrame'),at=document.getElementById('adminTab'),ct=document.getElementById('clientTab'),rb=document.getElementById('refreshBtn'),tag=document.getElementById('previewTag');
 function refreshPreview(){c.src='../?preview=1&t='+Date.now()}
 function show(which){const client=which==='client';a.classList.toggle('on',!client);c.classList.toggle('on',client);at.classList.toggle('on',!client);ct.classList.toggle('on',client);rb.classList.toggle('show',client);tag.classList.toggle('show',client);if(client)refreshPreview()}
 at.onclick=()=>show('admin');ct.onclick=()=>show('client');rb.onclick=refreshPreview;
+// O painel original continua isolado em manage.html. Como é do mesmo site, podemos observar a lista de produtos.
 a.addEventListener('load',()=>{try{const doc=a.contentDocument;const rows=doc&&doc.getElementById('productRows');if(!rows)return;let first=true;const obs=new MutationObserver(()=>{if(first){first=false;return}setTimeout(refreshPreview,250)});obs.observe(rows,{childList:true,subtree:true});}catch(e){console.warn(e)}});
 </script>
 </body></html>
