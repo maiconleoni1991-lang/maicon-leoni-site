@@ -36,7 +36,7 @@ footer{background:linear-gradient(115deg,#571029,#79173a 62%,#8b1d46);color:#fff
 <footer><div class="foot"><div><b>Geladinho dos Sonhos</b><p>Feito com carinho para deixar seu dia mais gostoso.</p></div><div><b>Faça seu pedido</b><p>📱 <a href="https://wa.me/5516992542888" target="_blank">(16) 99254-2888</a><br>📍 Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP<br>🛵 Entrega em Monte Alto: taxa fixa de R$ 6,00</p></div></div></footer>
 <div class="overlay" id="ov"><div class="modal"><div class="modalHead"><h2>🛒 Meu pedido</h2><button class="close" id="close">✕</button></div><div class="modalBody"><div id="rows"></div><div class="ful"><label><input type="radio" name="ful" value="retirada" checked> 🏠 Retirar no local</label><label><input type="radio" name="ful" value="entrega"> 🛵 Entrega + R$ 6,00</label></div><div class="delivery" id="delivery"><div class="grid"><input class="full" id="name" placeholder="Seu nome"><input id="cep" inputmode="numeric" maxlength="9" placeholder="CEP"><input id="num" placeholder="Número"><input class="full" id="street" placeholder="Rua"><input id="district" placeholder="Bairro"><input id="comp" placeholder="Complemento (opcional)"><input class="full" id="reference" placeholder="Ponto de referência (opcional)"></div><p class="note">Entregas somente em Monte Alto/SP. Ao informar o CEP, tentamos preencher rua e bairro automaticamente.</p></div><textarea id="obs" placeholder="Observação (opcional)"></textarea><div class="fee" id="fee"><span>Taxa de entrega</span><span>R$ 6,00</span></div><div class="total"><span>Total</span><span id="total">R$ 0,00</span></div><button class="wa" id="wa">Enviar pedido pelo WhatsApp</button></div></div></div>
 <script>
-const P=[
+const fallbackP=[
 {id:'trad-morango',name:'Morango',cat:'Tradicional',price:1.5,img:'trad_morango',desc:'Sabor clássico e refrescante de morango.',active:true},
 {id:'leite-morango',name:'Morango',cat:'Ao Leite',price:3.5,img:'leite_morango',desc:'Geladinho cremoso ao leite sabor morango.',active:true},
 {id:'leite-ninho',name:'Leite Ninho',cat:'Ao Leite',price:3.5,img:'leite_ninho',desc:'Geladinho cremoso ao leite com leite em pó.',active:true},
@@ -47,7 +47,24 @@ const P=[
 {id:'leite-mamao',name:'Mamão Papaya',cat:'Ao Leite',price:3.5,img:'leite_mamao',desc:'Geladinho cremoso ao leite sabor mamão papaya.',active:false},
 {id:'gourmet-maracuja',name:'Maracujá Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_maracuja',desc:'Sorvete de maracujá com calda de maracujá.',active:true},
 {id:'gourmet-morango',name:'Morango Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_morango',desc:'Sorvete de morango com calda de morango.',active:true}
-];
+ ];
+let P=[...fallbackP];
+const SUPABASE_URL='https://qpqruhcspbdxjcnbhdhn.supabase.co';
+const SUPABASE_KEY='sb_publishable_JVYvfl7nrRmlm17qF_KI8A_1H8mtvLk';
+const imageClassBySlug={
+ 'trad-morango':'trad_morango','leite-morango':'leite_morango','leite-ninho':'leite_ninho','leite-milho':'leite_milho','leite-chocolate':'leite_chocolate','leite-uva':'leite_uva','leite-maracuja':'leite_maracuja','leite-mamao':'leite_mamao','gourmet-maracuja':'gourmet_maracuja','gourmet-morango':'gourmet_morango'
+};
+async function loadCatalog(){
+ try{
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/products?select=slug,name,category,description,price,stock,active,image_url,sort_order&order=sort_order.asc`,{headers:{apikey:SUPABASE_KEY}});
+  if(!r.ok) throw new Error('Falha ao carregar produtos');
+  const rows=await r.json();
+  if(Array.isArray(rows)&&rows.length){
+   P=rows.map(x=>({id:x.slug,name:x.name,cat:x.category,price:Number(x.price),img:imageClassBySlug[x.slug]||'',imageUrl:x.image_url||'',desc:x.description||'',active:!!x.active&&Number(x.stock)>0,stock:Number(x.stock)||0}));
+  }
+ }catch(e){console.warn('Usando catálogo local.',e);P=[...fallbackP]}
+ render();badgeNow();updateTotal();
+}
 let cart=JSON.parse(localStorage.getItem('gds_cart_online')||'{}'),draft={},filter='Todos';
 const money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),by=id=>P.find(p=>p.id===id),mode=()=>document.querySelector('input[name=ful]:checked').value;
 function save(){localStorage.setItem('gds_cart_online',JSON.stringify(cart))}
@@ -56,7 +73,7 @@ function render(){
  let h='';
  ['Tradicional','Ao Leite','Gourmet'].forEach(c=>{if(filter!=='Todos'&&filter!==c)return;const arr=P.filter(p=>p.cat===c),pr=c==='Tradicional'?1.5:c==='Ao Leite'?3.5:5.5;
  h+=`<section class="section"><div class="sectionHead"><h2>${c==='Gourmet'?'💎':c==='Ao Leite'?'🥛':'🍓'} ${c.toUpperCase()}</h2><b>${money(pr)} cada</b></div><div class="list">`;
- arr.forEach(p=>{const q=draft[p.id]||0;h+=`<article class="card ${cls(p.cat)}"><div class="photo sprite i-${p.img}" role="img" aria-label="${p.name} — ${p.cat}"></div><div class="info"><h3>${p.name}</h3><span class="type">${p.cat}</span><div class="desc">${p.desc}</div>${p.active?'':'<div class="soon">Em breve</div>'}</div><div class="actions"><div class="price">${money(p.price)}</div><div class="qty"><button onclick="dq('${p.id}',-1)" ${p.active?'':'disabled'}>−</button><span>${q}</span><button onclick="dq('${p.id}',1)" ${p.active?'':'disabled'}>+</button></div><button class="add" onclick="add('${p.id}')" ${p.active?'':'disabled'}>🛒 Adicionar</button></div></article>`});h+='</div></section>'});
+ arr.forEach(p=>{const q=draft[p.id]||0;h+=`<article class="card ${cls(p.cat)}"><div class="photo ${p.imageUrl?'':'sprite i-'+p.img}" ${p.imageUrl?`style="background-image:url('${p.imageUrl.replace(/'/g,'%27')}');background-size:cover;background-position:center;background-repeat:no-repeat"`:''} role="img" aria-label="${p.name} — ${p.cat}"></div><div class="info"><h3>${p.name}</h3><span class="type">${p.cat}</span><div class="desc">${p.desc}</div>${p.active?'':'<div class="soon">Em breve</div>'}</div><div class="actions"><div class="price">${money(p.price)}</div><div class="qty"><button onclick="dq('${p.id}',-1)" ${p.active?'':'disabled'}>−</button><span>${q}</span><button onclick="dq('${p.id}',1)" ${p.active?'':'disabled'}>+</button></div><button class="add" onclick="add('${p.id}')" ${p.active?'':'disabled'}>🛒 Adicionar</button></div></article>`});h+='</div></section>'});
  catalog.innerHTML=h;
 }
 function dq(id,d){const p=by(id);if(!p.active)return;draft[id]=Math.max(0,(draft[id]||0)+d);render()}
@@ -71,6 +88,6 @@ async function cepLookup(){const c=cep.value.replace(/\D/g,'');if(c.length!==8)r
 function send(){const ids=Object.keys(cart).filter(id=>cart[id]>0);if(!ids.length)return alert('Adicione pelo menos um geladinho.');let sub=0,lines=['Olá! Quero fazer um pedido:',''];ids.forEach(id=>{const p=by(id),q=cart[id];sub+=p.price*q;lines.push(`• ${q}x ${p.name} (${p.cat}) — ${money(p.price*q)}`)});lines.push('',`Subtotal: ${money(sub)}`);if(mode()==='entrega'){const c=cep.value.replace(/\D/g,'');if(!name.value.trim()||c.length!==8||!street.value.trim()||!num.value.trim()||!district.value.trim())return alert('Preencha nome, CEP, rua, número e bairro.');if(!/^1591\d{4}$/.test(c))return alert('Confira o CEP de Monte Alto/SP.');lines.push(`Taxa de entrega: ${money(6)}`,`Total: ${money(sub+6)}`,'',`Entrega para: ${name.value.trim()}`,`${street.value.trim()}, ${num.value.trim()}${comp.value.trim()?` - ${comp.value.trim()}`:''}`,`${district.value.trim()} — Monte Alto/SP — CEP ${cep.value.trim()}${reference.value.trim()?`\nReferência: ${reference.value.trim()}`:''}`)}else lines.push(`Total: ${money(sub)}`,'','Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP');if(obs.value.trim())lines.push('',`Observação: ${obs.value.trim()}`);window.open('https://wa.me/5516992542888?text='+encodeURIComponent(lines.join('\n')),'_blank')}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
 document.querySelectorAll('input[name=ful]').forEach(r=>r.onchange=()=>{delivery.classList.toggle('show',mode()==='entrega');updateTotal()});
-cartTop.onclick=float.onclick=openCart;close.onclick=()=>ov.classList.remove('show');ov.onclick=e=>{if(e.target===ov)ov.classList.remove('show')};cep.onblur=cepLookup;wa.onclick=send;render();badgeNow();updateTotal();
+cartTop.onclick=float.onclick=openCart;close.onclick=()=>ov.classList.remove('show');ov.onclick=e=>{if(e.target===ov)ov.classList.remove('show')};cep.onblur=cepLookup;wa.onclick=send;loadCatalog();
 </script>
 </body></html>
