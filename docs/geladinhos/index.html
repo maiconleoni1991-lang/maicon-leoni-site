@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ef1767">
-<meta name="description" content="Geladinho dos Sonhos em Monte Alto/SP. Tradicionais, ao leite e gourmets. Retirada ou entrega.">
+<meta name="description" content="Geladinho dos Sonhos em Monte Alto/SP. Tradicionais, cremosos e gourmets. Retirada ou entrega.">
 <title>Geladinho dos Sonhos — Cardápio Online</title>
 <style>
 :root{--pink:#ef1767;--pink2:#ff4f8f;--wine:#741337;--ink:#2d1720;--muted:#765e67;--line:#eadde1;--green:#17a856;--sprite:url('./assets/sprite.webp');--logo:url('./assets/logo.webp');--shadow:0 18px 50px rgba(92,19,49,.12)}
@@ -30,21 +30,21 @@ footer{background:linear-gradient(115deg,#571029,#79173a 62%,#8b1d46);color:#fff
 </head>
 <body>
 <header class="top"><div class="nav"><div class="logo logoSm" role="img" aria-label="Logo Geladinho dos Sonhos"></div><div class="brand"><b>Geladinho dos Sonhos</b><span>Cremosos, refrescantes e deliciosos</span></div><div class="spacer"></div><button class="cartTop" id="cartTop">🛒<span class="badge" id="badge">0</span></button></div></header>
-<section class="hero"><div class="heroIn"><div><h1>Mais que um geladinho, é um momento de felicidade!</h1><p>Escolha seus sabores, monte seu pedido e decida entre retirada no local ou entrega em Monte Alto.</p><div class="chips"><span class="chip">Tradicional · R$ 1,50</span><span class="chip">Ao Leite · R$ 3,50</span><span class="chip">Gourmet · R$ 5,50</span><span class="chip">Entrega · R$ 6,00</span></div></div><div class="logo heroLogo" role="img" aria-label="Geladinho dos Sonhos"></div></div></section>
-<main class="wrap"><div class="tabs"><button class="tab active" data-filter="Todos">Todos</button><button class="tab" data-filter="Tradicional">Tradicionais<small>R$ 1,50</small></button><button class="tab" data-filter="Ao Leite">Ao Leite<small>R$ 3,50</small></button><button class="tab" data-filter="Gourmet">Gourmets<small>R$ 5,50</small></button></div><div id="catalog"></div></main>
+<section class="hero"><div class="heroIn"><div><h1>Mais que um geladinho, é um momento de felicidade!</h1><p>Escolha seus sabores, monte seu pedido e decida entre retirada no local ou entrega em Monte Alto.</p><div class="chips"><span class="chip">Tradicional · R$ 1,50</span><span class="chip">Cremoso · R$ 3,50</span><span class="chip">Gourmet · R$ 5,50</span><span class="chip">Entrega · R$ 6,00</span></div></div><div class="logo heroLogo" role="img" aria-label="Geladinho dos Sonhos"></div></div></section>
+<main class="wrap"><div class="tabs"><button class="tab active" data-filter="Todos">Todos</button><button class="tab" data-filter="Tradicional">Tradicionais<small>R$ 1,50</small></button><button class="tab" data-filter="Cremoso">Cremoso<small>R$ 3,50</small></button><button class="tab" data-filter="Gourmet">Gourmets<small>R$ 5,50</small></button></div><div id="catalog"></div></main>
 <button class="float" id="float">💬 Faça seu pedido · <span id="count">0</span></button>
 <footer><div class="foot"><div><b>Geladinho dos Sonhos</b><p>Feito com carinho para deixar seu dia mais gostoso.</p></div><div><b>Faça seu pedido</b><p>📱 <a href="https://wa.me/5516992542888" target="_blank">(16) 99254-2888</a><br>📍 Retirada: Rua Aparecida Marchetti Guzzo, 161 — Vale dos Sonhos — Monte Alto/SP<br>🛵 Entrega em Monte Alto: taxa fixa de R$ 6,00</p></div></div></footer>
 <div class="overlay" id="ov"><div class="modal"><div class="modalHead"><h2>🛒 Meu pedido</h2><button class="close" id="close">✕</button></div><div class="modalBody"><div id="rows"></div><div class="ful"><label><input type="radio" name="ful" value="retirada" checked> 🏠 Retirar no local</label><label><input type="radio" name="ful" value="entrega"> 🛵 Entrega + R$ 6,00</label></div><div class="delivery" id="delivery"><div class="grid"><input class="full" id="name" placeholder="Seu nome"><input id="cep" inputmode="numeric" maxlength="9" placeholder="CEP"><input id="num" placeholder="Número"><input class="full" id="street" placeholder="Rua"><input id="district" placeholder="Bairro"><input id="comp" placeholder="Complemento (opcional)"><input class="full" id="reference" placeholder="Ponto de referência (opcional)"></div><p class="note">Entregas somente em Monte Alto/SP. Ao informar o CEP, tentamos preencher rua e bairro automaticamente.</p></div><textarea id="obs" placeholder="Observação (opcional)"></textarea><div class="fee" id="fee"><span>Taxa de entrega</span><span>R$ 6,00</span></div><div class="total"><span>Total</span><span id="total">R$ 0,00</span></div><button class="wa" id="wa">Enviar pedido pelo WhatsApp</button></div></div></div>
 <script>
 const fallbackP=[
 {id:'trad-morango',name:'Morango',cat:'Tradicional',price:1.5,img:'trad_morango',desc:'Sabor clássico e refrescante de morango.',active:true},
-{id:'leite-morango',name:'Morango',cat:'Ao Leite',price:3.5,img:'leite_morango',desc:'Geladinho cremoso ao leite sabor morango.',active:true},
-{id:'leite-ninho',name:'Leite Ninho',cat:'Ao Leite',price:3.5,img:'leite_ninho',desc:'Geladinho cremoso ao leite com leite em pó.',active:true},
-{id:'leite-milho',name:'Milho Verde',cat:'Ao Leite',price:3.5,img:'leite_milho',desc:'Geladinho cremoso ao leite sabor milho verde.',active:true},
-{id:'leite-chocolate',name:'Chocolate',cat:'Ao Leite',price:3.5,img:'leite_chocolate',desc:'Geladinho cremoso ao leite sabor chocolate.',active:true},
-{id:'leite-uva',name:'Uva',cat:'Ao Leite',price:3.5,img:'leite_uva',desc:'Geladinho cremoso ao leite sabor uva.',active:true},
-{id:'leite-maracuja',name:'Maracujá',cat:'Ao Leite',price:3.5,img:'leite_maracuja',desc:'Geladinho cremoso ao leite sabor maracujá.',active:true},
-{id:'leite-mamao',name:'Mamão Papaya',cat:'Ao Leite',price:3.5,img:'leite_mamao',desc:'Geladinho cremoso ao leite sabor mamão papaya.',active:false},
+{id:'leite-morango',name:'Morango',cat:'Cremoso',price:3.5,img:'leite_morango',desc:'Geladinho cremoso ao leite sabor morango.',active:true},
+{id:'leite-ninho',name:'Leite Ninho',cat:'Cremoso',price:3.5,img:'leite_ninho',desc:'Geladinho cremoso ao leite com leite em pó.',active:true},
+{id:'leite-milho',name:'Milho Verde',cat:'Cremoso',price:3.5,img:'leite_milho',desc:'Geladinho cremoso ao leite sabor milho verde.',active:true},
+{id:'leite-chocolate',name:'Chocolate',cat:'Cremoso',price:3.5,img:'leite_chocolate',desc:'Geladinho cremoso ao leite sabor chocolate.',active:true},
+{id:'leite-uva',name:'Uva',cat:'Cremoso',price:3.5,img:'leite_uva',desc:'Geladinho cremoso ao leite sabor uva.',active:true},
+{id:'leite-maracuja',name:'Maracujá',cat:'Cremoso',price:3.5,img:'leite_maracuja',desc:'Geladinho cremoso ao leite sabor maracujá.',active:true},
+{id:'leite-mamao',name:'Mamão Papaya',cat:'Cremoso',price:3.5,img:'leite_mamao',desc:'Geladinho cremoso ao leite sabor mamão papaya.',active:false},
 {id:'gourmet-maracuja',name:'Maracujá Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_maracuja',desc:'Sorvete de maracujá com calda de maracujá.',active:true},
 {id:'gourmet-morango',name:'Morango Gourmet',cat:'Gourmet',price:5.5,img:'gourmet_morango',desc:'Sorvete de morango com calda de morango.',active:true}
  ];
@@ -71,8 +71,8 @@ function save(){localStorage.setItem('gds_cart_online',JSON.stringify(cart))}
 function cls(c){return c==='Gourmet'?'gourmet':c==='Tradicional'?'trad':'leite'}
 function render(){
  let h='';
- ['Tradicional','Ao Leite','Gourmet'].forEach(c=>{if(filter!=='Todos'&&filter!==c)return;const arr=P.filter(p=>p.cat===c),pr=c==='Tradicional'?1.5:c==='Ao Leite'?3.5:5.5;
- h+=`<section class="section"><div class="sectionHead"><h2>${c==='Gourmet'?'💎':c==='Ao Leite'?'🥛':'🍓'} ${c.toUpperCase()}</h2><b>${money(pr)} cada</b></div><div class="list">`;
+ ['Tradicional','Cremoso','Gourmet'].forEach(c=>{if(filter!=='Todos'&&filter!==c)return;const arr=P.filter(p=>p.cat===c),pr=c==='Tradicional'?1.5:c==='Cremoso'?3.5:5.5;
+ h+=`<section class="section"><div class="sectionHead"><h2>${c==='Gourmet'?'💎':c==='Cremoso'?'🥛':'🍓'} ${c.toUpperCase()}</h2><b>${money(pr)} cada</b></div><div class="list">`;
  arr.forEach(p=>{const q=draft[p.id]||0;h+=`<article class="card ${cls(p.cat)}"><div class="photo ${p.imageUrl?'':'sprite i-'+p.img}" ${p.imageUrl?`style="background-image:url('${p.imageUrl.replace(/'/g,'%27')}');background-size:cover;background-position:center;background-repeat:no-repeat"`:''} role="img" aria-label="${p.name} — ${p.cat}"></div><div class="info"><h3>${p.name}</h3><span class="type">${p.cat}</span><div class="desc">${p.desc}</div>${p.active?'':'<div class="soon">Em breve</div>'}</div><div class="actions"><div class="price">${money(p.price)}</div><div class="qty"><button onclick="dq('${p.id}',-1)" ${p.active?'':'disabled'}>−</button><span>${q}</span><button onclick="dq('${p.id}',1)" ${p.active?'':'disabled'}>+</button></div><button class="add" onclick="add('${p.id}')" ${p.active?'':'disabled'}>🛒 Adicionar</button></div></article>`});h+='</div></section>'});
  catalog.innerHTML=h;
 }
