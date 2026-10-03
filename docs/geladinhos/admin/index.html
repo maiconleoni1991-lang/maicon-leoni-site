@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Geladinho dos Sonhos — Painel da Loja</title>
+<style>
+:root{--pink:#ff0f68;--pink2:#ff4e8e;--wine:#4a101e;--ink:#29171d;--muted:#78616a;--line:#efdde4;--bg:#fff8fb;--green:#12a85a;--yellow:#f4b000;--red:#db3b4b;--shadow:0 16px 42px rgba(99,23,51,.09)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#fff8fb,#fff);color:var(--ink)}
+button,input,select{font:inherit}header{position:sticky;top:0;z-index:10;background:#ffffffee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.top{max-width:1180px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:12px}.logo{width:66px;height:66px;object-fit:contain}.title b{display:block;color:var(--wine);font-size:18px}.title span{font-size:12px;color:var(--muted)}.spacer{flex:1}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;color:var(--muted);font-weight:700}
+main{max-width:1180px;margin:auto;padding:22px 18px 80px}.notice{padding:12px 14px;border:1px solid #ffd2df;background:#fff2f6;border-radius:14px;color:#7a2341;margin-bottom:18px;font-size:13px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.nav button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;color:var(--wine);cursor:pointer}.nav button.on{background:var(--pink);color:white;border-color:var(--pink)}.panel{display:none}.panel.on{display:block}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}.stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.stat small{color:var(--muted)}.stat strong{display:block;font-size:28px;margin-top:6px;color:var(--wine)}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}.cardHead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.cardHead h2{margin:0;font-size:18px}.cardHead button{margin-left:auto;border:0;background:var(--pink);color:#fff;border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer}.tableWrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:820px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #f4e9ed;font-size:13px}th{color:var(--muted);font-size:12px;background:#fffafd}.cat{font-weight:800;padding:5px 8px;border-radius:999px;background:#fff0f5;color:#9c2850}.status{font-weight:900}.ok{color:var(--green)}.off{color:var(--red)}.actions button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;cursor:pointer;margin-right:5px}.actions .danger{color:var(--red)}
+.orderGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.order{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.order h3{margin:0 0 8px;font-size:16px}.order p{margin:4px 0;color:var(--muted);font-size:13px}.order select{width:100%;margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:9px}
+.overlay{position:fixed;inset:0;background:#2a10198c;display:none;place-items:center;padding:16px;z-index:100}.overlay.show{display:grid}.modal{width:min(560px,100%);background:#fff;border-radius:22px;max-height:92vh;overflow:auto}.mh{display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}.mh h3{margin:0}.mh button{margin-left:auto;border:0;background:#f7eef1;border-radius:9px;width:34px;height:34px}.mb{padding:16px 18px}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form .full{grid-column:1/-1}label{font-size:12px;color:var(--muted);font-weight:700}input,select{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}.preview{width:100%;aspect-ratio:16/9;border:1px dashed #e3cad3;border-radius:14px;display:grid;place-items:center;overflow:hidden;background:#fff9fb;color:var(--muted)}.preview img{width:100%;height:100%;object-fit:cover}.save{width:100%;margin-top:14px;border:0;background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff;border-radius:13px;padding:12px;font-weight:900}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:800px){.grid4{grid-template-columns:1fr 1fr}.orderGrid{grid-template-columns:1fr}}
+@media(max-width:520px){.grid4{grid-template-columns:1fr}.top{padding:8px 12px}main{padding:16px 12px 70px}.form{grid-template-columns:1fr}.form .full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="top"><img class="logo" src="../assets/logo.webp"><div class="title"><b>Geladinho dos Sonhos</b><span>Painel do proprietário</span></div><div class="spacer"></div><span class="pill">Prévia local</span></div></header>
+<main>
+<div class="notice">Painel administrativo em modo de preparação. Cadastro, estoque e pedidos serão sincronizados com a loja assim que o banco de dados estiver conectado.</div>
+<div class="nav"><button class="on" data-panel="dashboard">Resumo</button><button data-panel="products">Produtos</button><button data-panel="orders">Pedidos</button></div>
+
+<section class="panel on" id="dashboard">
+<div class="grid4">
+<div class="stat"><small>Produtos ativos</small><strong id="sActive">0</strong></div>
+<div class="stat"><small>Itens em estoque</small><strong id="sStock">0</strong></div>
+<div class="stat"><small>Pedidos em aberto</small><strong>3</strong></div>
+<div class="stat"><small>Entrega</small><strong style="font-size:22px">R$ 6,00</strong></div>
+</div>
+<div class="card"><div class="cardHead"><h2>Fluxo do pedido</h2></div><div style="padding:18px;color:#6f5962;line-height:1.8">Pedido recebido → Aceito → Em preparação → Saiu para entrega → Entregue → Avaliação</div></div>
+</section>
+
+<section class="panel" id="products">
+<div class="card"><div class="cardHead"><h2>Produtos</h2><button id="addBtn">+ Novo sabor</button></div><div class="tableWrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th>Ações</th></tr></thead><tbody id="productRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="orders">
+<div class="orderGrid">
+<div class="order"><h3>#GD1024 · Carlos</h3><p>3 itens · R$ 10,50</p><p>Retirada no local</p><select><option>Pedido recebido</option><option>Aceito</option><option>Em preparação</option><option>Saiu para entrega</option><option>Entregue</option></select></div>
+<div class="order"><h3>#GD1025 · Juliana</h3><p>5 itens · R$ 23,50</p><p>Entrega · + R$ 6,00</p><select><option>Aceito</option><option>Pedido recebido</option><option>Em preparação</option><option>Saiu para entrega</option><option>Entregue</option></select></div>
+<div class="order"><h3>#GD1026 · Marcos</h3><p>2 itens · R$ 11,00</p><p>Entrega · + R$ 6,00</p><select><option>Em preparação</option><option>Pedido recebido</option><option>Aceito</option><option>Saiu para entrega</option><option>Entregue</option></select></div>
+</div>
+</section>
+</main>
+
+<div class="overlay" id="overlay"><div class="modal"><div class="mh"><h3 id="modalTitle">Novo sabor</h3><button id="closeBtn">✕</button></div><div class="mb"><div class="form">
+<div class="full"><label>Nome do sabor<input id="fName" placeholder="Ex.: Coco Cremoso"></label></div>
+<label>Categoria<select id="fCat"><option>Tradicional</option><option>Ao Leite</option><option>Gourmet</option></select></label>
+<label>Preço<input id="fPrice" type="number" min="0" step="0.01"></label>
+<label>Estoque<input id="fStock" type="number" min="0" step="1"></label>
+<label>Disponível<select id="fActive"><option value="true">Sim</option><option value="false">Não</option></select></label>
+<div class="full"><label>Imagem do produto<input id="fImage" type="file" accept="image/*"></label><div class="preview" id="preview">Prévia da imagem</div></div>
+</div><button class="save" id="saveBtn">Salvar produto</button></div></div></div>
+
+<script>
+const initial=[{"id":"trad-morango","name":"Morango","category":"Tradicional","price":1.5,"stock":20,"active":true},{"id":"leite-morango","name":"Morango","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-ninho","name":"Leite Ninho","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-milho","name":"Milho Verde","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-chocolate","name":"Chocolate","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-uva","name":"Uva","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-maracuja","name":"Maracujá","category":"Ao Leite","price":3.5,"stock":20,"active":true},{"id":"leite-mamao","name":"Mamão Papaya","category":"Ao Leite","price":3.5,"stock":0,"active":false},{"id":"gourmet-maracuja","name":"Maracujá Gourmet","category":"Gourmet","price":5.5,"stock":20,"active":true},{"id":"gourmet-morango","name":"Morango Gourmet","category":"Gourmet","price":5.5,"stock":20,"active":true}];
+let products=JSON.parse(localStorage.getItem('gds_admin_products')||JSON.stringify(initial));
+let editing=null,imageData='';
+const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function persist(){localStorage.setItem('gds_admin_products',JSON.stringify(products));render();}
+function render(){
+  productRows.innerHTML=products.map(p=>`<tr><td><b>${p.name}</b></td><td><span class="cat">${p.category}</span></td><td>${money(p.price)}</td><td>${p.stock}</td><td><span class="status ${p.active?'ok':'off'}">${p.active?'Disponível':'Indisponível'}</span></td><td class="actions"><button onclick="editP('${p.id}')">Editar</button><button onclick="toggleP('${p.id}')">${p.active?'Pausar':'Ativar'}</button><button class="danger" onclick="delP('${p.id}')">Excluir</button></td></tr>`).join('');
+  sActive.textContent=products.filter(p=>p.active).length;
+  sStock.textContent=products.reduce((a,p)=>a+(Number(p.stock)||0),0);
+}
+function openModal(p=null){
+  editing=p?.id||null; modalTitle.textContent=p?'Editar produto':'Novo sabor';
+  fName.value=p?.name||''; fCat.value=p?.category||'Ao Leite'; fPrice.value=p?.price??3.5; fStock.value=p?.stock??0; fActive.value=String(p?.active??true); imageData=p?.image||'';
+  preview.innerHTML=imageData?`<img src="${imageData}">`:'Prévia da imagem'; overlay.classList.add('show');
+}
+function editP(id){openModal(products.find(p=>p.id===id));}
+function toggleP(id){const p=products.find(p=>p.id===id);p.active=!p.active;persist();}
+function delP(id){if(confirm('Excluir este produto da prévia?')){products=products.filter(p=>p.id!==id);persist();}}
+addBtn.onclick=()=>openModal();closeBtn.onclick=()=>overlay.classList.remove('show');overlay.onclick=e=>{if(e.target===overlay)overlay.classList.remove('show')};
+fImage.onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{imageData=r.result;preview.innerHTML=`<img src="${imageData}">`;};r.readAsDataURL(file);};
+saveBtn.onclick=()=>{
+  const name=fName.value.trim();if(!name)return alert('Informe o nome do sabor.');
+  const obj={id:editing||('p-'+Date.now()),name,category:fCat.value,price:Number(fPrice.value||0),stock:Number(fStock.value||0),active:fActive.value==='true',image:imageData};
+  if(editing)products=products.map(p=>p.id===editing?obj:p);else products.push(obj);
+  persist();overlay.classList.remove('show');
+};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));document.getElementById(b.dataset.panel).classList.add('on')});
+render();
+</script>
+</body></html>
