@@ -1,7 +1,7 @@
 (()=>{
 const frame=document.getElementById('store');
 const ROOT=new URL('./',window.location.href).href.replace(/\/$/,'');
-function lastOrder(){try{return JSON.parse(localStorage.getItem('gds_last_order')||'null')}catch(_){return null}}
+function lastOrder(){try{const o=JSON.parse(localStorage.getItem('gds_last_order')||'null');if(!o||!o.token)return null;if(localStorage.getItem('gds_order_closed_'+o.token)==='1')return null;return o}catch(_){return null}}
 function hrefFor(o){return ROOT+'/acompanhar/'+(o&&o.token?'?t='+encodeURIComponent(o.token):'')}
 function installMobileTracking(){
   const d=frame&&frame.contentDocument;if(!d||!d.body)return;
@@ -31,7 +31,7 @@ function scrollTestimonials(){
 function hookOrderCreated(){
   if(typeof window.gdsAddTrackingShortcut!=='function'||window.gdsAddTrackingShortcut.__v24)return;
   const original=window.gdsAddTrackingShortcut;
-  function hooked(d,o){const r=original.apply(this,arguments);setTimeout(installMobileTracking,30);return r}hooked.__v24=true;window.gdsAddTrackingShortcut=hooked;
+  function hooked(d,o){localStorage.removeItem('gds_order_closed_'+(o&&o.token||''));const r=original.apply(this,arguments);setTimeout(installMobileTracking,30);return r}hooked.__v24=true;window.gdsAddTrackingShortcut=hooked;
 }
 function apply(){installMobileTracking();enhanceWhats();scrollTestimonials();hookOrderCreated()}
 if(frame){frame.addEventListener('load',()=>{setTimeout(apply,200);setTimeout(apply,800);setTimeout(apply,1600)});setTimeout(apply,900)}
