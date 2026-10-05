@@ -1,8 +1,16 @@
 (()=>{
 const frame=document.getElementById('store');
-const ROOT=new URL('./',window.location.href).href.replace(/\/$/,'');
+const MARKER='/geladinhos/';
+function appRoot(){
+  const p=window.location.pathname;
+  const i=p.indexOf(MARKER);
+  if(i>=0)return new URL(p.slice(0,i+MARKER.length),window.location.origin).href.replace(/\/$/,'');
+  return new URL('./',window.location.href).href.replace(/\/$/,'');
+}
+const ROOT=appRoot();
 function lastOrder(){try{const o=JSON.parse(localStorage.getItem('gds_last_order')||'null');if(!o||!o.token)return null;if(localStorage.getItem('gds_order_closed_'+o.token)==='1')return null;return o}catch(_){return null}}
 function hrefFor(o){return ROOT+'/acompanhar/'+(o&&o.token?'?t='+encodeURIComponent(o.token):'')}
+function testimonialsHref(){return ROOT+'/?depoimentos=1#gdsTestimonials'}
 function installMobileTracking(){
   const d=frame&&frame.contentDocument;if(!d||!d.body)return;
   const old=d.getElementById('gdsMobileTrackV24');if(old)old.remove();
@@ -16,7 +24,7 @@ function enhanceWhats(){
   const original=w.gdsBuildWhatsMessage;
   function upgraded(){
     let base=original.apply(this,arguments),o=lastOrder();
-    const track=hrefFor(o),reviews=ROOT+'/?depoimentos=1';
+    const track=hrefFor(o),reviews=testimonialsHref();
     base+='\n\n📍 *ACOMPANHE SEU PEDIDO*\n'+track;
     base+='\n\n⭐ *DEPOIS QUE RECEBER*\nSua avaliação é muito importante para nós. Quando o pedido for entregue, use o link de acompanhamento acima para avaliar sua experiência.';
     base+='\n\n💬 *DEPOIMENTOS DE CLIENTES*\n'+reviews;
@@ -25,7 +33,7 @@ function enhanceWhats(){
   upgraded.__v24=true;w.gdsBuildWhatsMessage=upgraded;
 }
 function scrollTestimonials(){
-  if(new URLSearchParams(location.search).get('depoimentos')!=='1')return;
+  if(new URLSearchParams(location.search).get('depoimentos')!=='1'&&location.hash!=='#gdsTestimonials')return;
   const d=frame&&frame.contentDocument;if(!d)return;const s=d.getElementById('gdsTestimonials');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function hookOrderCreated(){
