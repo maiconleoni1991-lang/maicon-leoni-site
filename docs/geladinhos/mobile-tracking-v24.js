@@ -9,7 +9,7 @@ function installMobileTracking(){
   let css=d.getElementById('gdsMobileTrackCssV24');
   if(!css){css=d.createElement('style');css.id='gdsMobileTrackCssV24';css.textContent=`#gdsMobileTrackV24{position:fixed;z-index:2147483640;left:14px;bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;background:#fff;color:#4a101e;border:1px solid #f0d6df;border-radius:999px;padding:13px 17px;font:900 13px Inter,system-ui,Arial;box-shadow:0 14px 38px rgba(77,16,32,.24)}#gdsMobileTrackV24 .dot{width:9px;height:9px;border-radius:50%;background:#19b15b}@media(max-width:700px){#gdsMobileTrackV24{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));border-radius:17px;padding:15px 16px;background:linear-gradient(120deg,#4a101e,#6f1c3c);color:#fff;border:0;font-size:14px}body{padding-bottom:76px!important}}`;d.head.appendChild(css)}
   const o=lastOrder(),a=d.createElement('a');a.id='gdsMobileTrackV24';a.target='_top';a.href=hrefFor(o);a.innerHTML='<span class="dot"></span><span>'+(o&&o.code?'Acompanhar pedido '+o.code:'Acompanhar pedido')+'</span><span>›</span>';d.body.appendChild(a);
-  const nav=d.querySelector('.nav'),cart=d.getElementById('cartTop');if(nav&&cart&&!d.getElementById('gdsTrackNavV24')){const n=d.createElement('a');n.id='gdsTrackNavV24';n.className='cartNav';n.target='_top';n.href=hrefFor(o);n.textContent='📍';n.title='Acompanhar pedido';nav.insertBefore(n,cart)}
+  const nav=d.querySelector('.nav'),cart=d.getElementById('cartTop');if(nav&&cart){let n=d.getElementById('gdsTrackNavV24');if(!n){n=d.createElement('a');n.id='gdsTrackNavV24';n.className='cartNav';n.target='_top';n.textContent='📍';nav.insertBefore(n,cart)}n.href=hrefFor(o);n.title=o&&o.code?'Acompanhar '+o.code:'Acompanhar pedido'}
 }
 function enhanceWhats(){
   const w=frame&&frame.contentWindow;if(!w||typeof w.gdsBuildWhatsMessage!=='function'||w.gdsBuildWhatsMessage.__v24)return;
@@ -28,7 +28,12 @@ function scrollTestimonials(){
   if(new URLSearchParams(location.search).get('depoimentos')!=='1')return;
   const d=frame&&frame.contentDocument;if(!d)return;const s=d.getElementById('gdsTestimonials');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function apply(){installMobileTracking();enhanceWhats();scrollTestimonials()}
+function hookOrderCreated(){
+  if(typeof window.gdsAddTrackingShortcut!=='function'||window.gdsAddTrackingShortcut.__v24)return;
+  const original=window.gdsAddTrackingShortcut;
+  function hooked(d,o){const r=original.apply(this,arguments);setTimeout(installMobileTracking,30);return r}hooked.__v24=true;window.gdsAddTrackingShortcut=hooked;
+}
+function apply(){installMobileTracking();enhanceWhats();scrollTestimonials();hookOrderCreated()}
 if(frame){frame.addEventListener('load',()=>{setTimeout(apply,200);setTimeout(apply,800);setTimeout(apply,1600)});setTimeout(apply,900)}
 window.addEventListener('storage',()=>setTimeout(apply,50));
 })();
