@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/generate-pwa-icons.yml'
+      - 'docs/geladinhos/assets/app-icon.svg'
   workflow_dispatch:
 
 permissions:
@@ -15,19 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Instalar FFmpeg
+      - name: Instalar renderizador SVG
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-      - name: Gerar PNGs a partir do logo oficial
+          sudo apt-get install -y -qq librsvg2-bin
+      - name: Gerar PNGs PWA
         run: |
-          SRC="docs/geladinhos/assets/logo-oficial.webp"
+          SRC="docs/geladinhos/assets/app-icon.svg"
           OUT="docs/geladinhos/assets"
-          ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=165:165:force_original_aspect_ratio=decrease,pad=192:192:(ow-iw)/2:(oh-ih)/2:color=0xfff0f5" "$OUT/icon-192.png"
-          ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=440:440:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=0xfff0f5" "$OUT/icon-512.png"
-          ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=348:348:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=0xfff0f5" "$OUT/icon-maskable-512.png"
-          ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=148:148:force_original_aspect_ratio=decrease,pad=180:180:(ow-iw)/2:(oh-ih)/2:color=0xfff0f5" "$OUT/apple-touch-icon.png"
-          ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=29:29:force_original_aspect_ratio=decrease,pad=32:32:(ow-iw)/2:(oh-ih)/2:color=0xfff0f5" "$OUT/favicon-32.png"
+          rsvg-convert -w 192 -h 192 "$SRC" > "$OUT/icon-192.png"
+          rsvg-convert -w 512 -h 512 "$SRC" > "$OUT/icon-512.png"
+          rsvg-convert -w 512 -h 512 "$SRC" > "$OUT/icon-maskable-512.png"
+          rsvg-convert -w 180 -h 180 "$SRC" > "$OUT/apple-touch-icon.png"
+          rsvg-convert -w 32 -h 32 "$SRC" > "$OUT/favicon-32.png"
           file "$OUT/icon-192.png" "$OUT/icon-512.png" "$OUT/icon-maskable-512.png" "$OUT/apple-touch-icon.png" "$OUT/favicon-32.png"
       - name: Commit dos ícones
         run: |
@@ -37,6 +38,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Ícones já estão atualizados."
           else
-            git commit -m "Gerar ícones PWA do logo oficial"
+            git commit -m "Gerar ícones PWA do Geladinho dos Sonhos"
             git push
           fi
