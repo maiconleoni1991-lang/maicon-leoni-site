@@ -6,12 +6,24 @@ let gdsPrompt=null;
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();gdsPrompt=e});
 
+function gdsAddTrackingShortcut(d,order){
+  if(!d||!order||!order.token)return;
+  const old=d.getElementById('gdsTrackShortcut');if(old)old.remove();
+  const a=d.createElement('a');a.id='gdsTrackShortcut';a.target='_top';a.href='./acompanhar/?t='+encodeURIComponent(order.token);
+  a.innerHTML='📍 <span>Acompanhar '+(order.code||'pedido')+'</span>';
+  a.style.cssText='position:fixed;z-index:130;left:14px;bottom:14px;display:flex;align-items:center;gap:7px;text-decoration:none;background:#fff;color:#4a101e;border:1px solid #f0d6df;border-radius:999px;padding:12px 15px;font:900 12px Inter,system-ui,Arial;box-shadow:0 14px 35px rgba(77,16,32,.20)';
+  d.body.appendChild(a);
+}
+window.gdsAddTrackingShortcut=gdsAddTrackingShortcut;
+
 const f=document.getElementById('store');
 f.addEventListener('load',()=>{
   const d=f.contentDocument;
   if(!d||d.getElementById('gdsEnhanced'))return;
 
   const m=d.createElement('meta');m.id='gdsEnhanced';d.head.appendChild(m);
+  try{const last=JSON.parse(localStorage.getItem('gds_last_order')||'null');if(last&&last.token)gdsAddTrackingShortcut(d,last)}catch(_){ }
+
   const nav=d.querySelector('.nav'),cartTop=d.getElementById('cartTop');
   if(nav&&cartTop){
     const ib=d.createElement('button');
@@ -57,11 +69,11 @@ f.addEventListener('load',()=>{
     const wrap=document.createElement('div');wrap.id='gdsOrderSuccess';
     wrap.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(42,10,22,.72);backdrop-filter:blur(7px);display:grid;place-items:center;padding:16px';
     const card=document.createElement('div');card.style.cssText='width:min(520px,100%);background:#fff;border-radius:28px;padding:26px 22px;box-shadow:0 30px 90px rgba(45,10,25,.35);text-align:center;color:#35131f';
-    card.innerHTML='<div style="font-size:46px">✅</div><h2 style="margin:6px 0 4px;font-size:27px">Pedido registrado!</h2><div style="font-size:30px;font-weight:950;color:#ff0f68;margin:8px 0">#'+o.public_code+'</div><p style="color:#735e66;line-height:1.5;margin:8px 0 18px">Agora a loja precisa aceitar seu pedido. Você pode acompanhar cada etapa e ativar um alerta para saber quando ele sair para entrega.</p>';
+    card.innerHTML='<div style="font-size:46px">⏳</div><h2 style="margin:6px 0 4px;font-size:27px">Acompanhe seu pedido</h2><div style="font-size:30px;font-weight:950;color:#ff0f68;margin:8px 0">#'+o.public_code+'</div><p style="color:#735e66;line-height:1.5;margin:8px 0 18px">Pedido registrado. Agora estamos aguardando a loja aceitar. Acompanhe as etapas e ative os alertas para saber quando ele sair para entrega.</p>';
     const track=document.createElement('button');track.textContent='📍 Acompanhar meu pedido';track.style.cssText='width:100%;border:0;background:linear-gradient(120deg,#ff0f68,#ff337d);color:#fff;border-radius:14px;padding:15px;font-weight:950;font-size:16px';
     track.onclick=()=>{window.top.location.href='./acompanhar/?t='+encodeURIComponent(o.tracking_token)};
     const close=document.createElement('button');close.textContent='Continuar na loja';close.style.cssText='width:100%;border:0;background:#fff0f5;color:#6a1936;border-radius:14px;padding:13px;font-weight:900;margin-top:9px';close.onclick=()=>wrap.remove();
-    const hint=document.createElement('div');hint.textContent='Guarde o código '+o.public_code+' para consultar depois.';hint.style.cssText='font-size:12px;color:#8b737c;margin-top:13px';
+    const hint=document.createElement('div');hint.textContent='O botão “Acompanhar '+o.public_code+'” continuará disponível na loja.';hint.style.cssText='font-size:12px;color:#8b737c;margin-top:13px';
     card.append(track,close,hint);wrap.appendChild(card);document.body.appendChild(wrap)
   }
 
@@ -81,8 +93,9 @@ f.addEventListener('load',()=>{
     try{
       const r=await fetch('${GDS_URL}/rest/v1/rpc/create_store_order',{method:'POST',headers:{apikey:'${GDS_KEY}','Content-Type':'application/json'},body:JSON.stringify({p_customer_name:name,p_customer_phone:phone,p_fulfillment:delivery?'entrega':'retirada',p_address:address,p_notes:document.getElementById('obs').value.trim()||null,p_items:ids.map(id=>({slug:id,quantity:cart[id]}))})});
       if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||'Não foi possível registrar o pedido.')}
-      const o=await r.json();
-      localStorage.setItem('gds_last_order',JSON.stringify({code:o.public_code,token:o.tracking_token,phone}));
+      const o=await r.json(),saved={code:o.public_code,token:o.tracking_token,phone};
+      localStorage.setItem('gds_last_order',JSON.stringify(saved));
+      try{parent.gdsAddTrackingShortcut(document,saved)}catch(_){ }
       const msg=gdsBuildWhatsMessage(o.public_code,name,phone,delivery,address),wa='https://wa.me/${GDS_WHATS}?text='+encodeURIComponent(msg);
       if(waWindow&&!waWindow.closed)waWindow.location.replace(wa);else window.open(wa,'_blank');
       cart={};updateCartCount();render();
