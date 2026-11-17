@@ -100,7 +100,12 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
    <h2>Folha mensal</h2>
    <div class="month-controls"><button class="btn small secondary" id="prevMonth">‹ Anterior</button><strong id="monthTitle">—</strong><button class="btn small secondary" id="nextMonth">Próximo ›</button></div>
   </div>
-  <p class="muted">Toque em uma linha para preencher horários em branco. Saídas após 00h aparecem como <b>+1 dia</b>, mas pertencem à jornada anterior.</p>
+  <div class="actions" style="margin:0 0 12px">
+   <label for="editDate" style="margin:0">Editar uma data:</label>
+   <input id="editDate" type="date" style="width:auto;max-width:195px">
+   <button class="btn small" type="button" id="editDateBtn">Abrir jornada</button>
+  </div>
+  <p class="muted">Selecione uma data acima ou toque numa linha da tabela para editar entradas, intervalos, saída e observações. Horários em branco continuam em aberto. Saídas após 00h pertencem à jornada anterior.</p>
   <div class="scroller"><table>
    <thead><tr><th>Data</th><th>Entrada</th><th>Almoço/Intervalo</th><th>Retorno</th><th>Saída</th><th>Trabalhadas</th><th>HE 60%</th><th>HE 100%</th><th>Status</th></tr></thead>
    <tbody id="monthRows"></tbody>
@@ -125,7 +130,7 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
  <div class="modal-head"><h2 id="dialogTitle">Jornada</h2><button class="btn small secondary" id="closeDialog" type="button">Fechar</button></div>
  <form id="dayForm">
   <div class="form-grid">
-   <div><label for="workDay">Data</label><input id="workDay" type="date" required></div>
+   <div><label for="workDay">Data</label><input id="workDay" type="date" required readonly></div>
    <div><label for="shift">Turno</label><select id="shift"><option value="1">1º turno — saída 16:00</option><option value="2">2º turno — saída 23:04</option></select></div>
    <div><label for="entryAt">Entrada</label><input id="entryAt" type="datetime-local"></div>
    <div><label for="breakOut">Saída para intervalo</label><input id="breakOut" type="datetime-local"></div>
