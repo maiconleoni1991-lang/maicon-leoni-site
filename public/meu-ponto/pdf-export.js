@@ -80,7 +80,7 @@
   for(const row of input.rows){
    const cells=[
     row.date||"",row.weekday||"",row.entry||"",row.breakOut||"",row.breakIn||"",row.exit||"",
-    row.worked||"",row.he60||"",row.he100||"",row.note||row.status||""
+    row.worked||"",row.he60||"",row.he100||"",(row.status||"")+(row.note?" | "+row.note:"")
    ];
    const fontSize=7.45;
    const wrapped=cells.map((v,i)=>rowWrap(v,COLS[i].w,fontSize));
@@ -151,16 +151,16 @@
   return {bytes,pages:pages.length,rows:count,name:"MeuPonto_Espelho_"+input.month+".pdf"};
  }
 
- let latestUrl=null;
- function prepare(data){
+ const latestUrls={download:null,preview:null};
+ function prepare(data,mode){
   const result=makePDF(data);
   const url=URL.createObjectURL(new Blob([result.bytes],{type:"application/pdf"}));
-  if(latestUrl)URL.revokeObjectURL(latestUrl);
-  latestUrl=url;
+  if(latestUrls[mode])URL.revokeObjectURL(latestUrls[mode]);
+  latestUrls[mode]=url;
   return {result,url};
  }
  function download(data){
-  const file=prepare(data);
+  const file=prepare(data,"download");
   const holder=document.getElementById("pdfDownloadResult");
   const link=document.createElement("a");
   link.href=file.url;link.download=file.result.name;
@@ -174,7 +174,7 @@
   return file.result;
  }
  function preview(data){
-  const file=prepare(data);
+  const file=prepare(data,"preview");
   const box=document.getElementById("pdfPreviewBox");
   const frame=document.getElementById("pdfPreviewFrame");
   const link=document.getElementById("pdfPreviewOpenLink");
