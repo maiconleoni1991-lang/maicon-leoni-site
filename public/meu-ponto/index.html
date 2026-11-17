@@ -126,6 +126,19 @@ dialog h2{color:var(--gold-light)}
 .recovered-day .small{font-size:.75rem;color:#9bb1c9;display:block;margin-top:5px}
 @media(max-width:540px){.recovered-grid{grid-template-columns:1fr}}
 
+
+/* Bater ponto sempre acessível, com destaque Premium V3 */
+.punch-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.punch-header-btn{min-width:168px;min-height:49px;font-size:1rem;font-weight:800;box-shadow:0 8px 22px #d5b46e30}
+.punch-card-btn{min-height:51px;font-size:1rem;font-weight:800;padding:12px 21px}
+#punchGuide{margin:7px 0 0;color:#e7cf9c}
+@media(max-width:720px){
+ .punch-heading-actions{justify-content:flex-start;gap:7px}
+ .punch-heading-actions .status{font-size:.71rem}
+ .punch-header-btn{min-width:130px;min-height:45px;padding:10px 12px;font-size:.91rem}
+ .punch-card-btn{width:100%;min-width:190px}
+}
+
 </style>
 <script defer src="./app.js"></script>
 <script defer src="./payroll.js"></script>
@@ -152,7 +165,10 @@ dialog h2{color:var(--gold-light)}
 <section id="appPanel" class="hidden">
  <div class="top">
   <div><h1>Controle de jornada</h1><p class="muted" id="accountLabel">Seu histórico particular</p></div>
-  <span id="syncStatus" class="status">Verificando sincronização…</span>
+  <div class="punch-heading-actions">
+    <span id="syncStatus" class="status">Verificando sincronização…</span>
+    <button id="punchNowBtn" type="button" class="btn punch-header-btn" aria-label="Bater ponto com o horário real">◷ Bater ponto</button>
+  </div>
  </div>
  <nav class="premium-nav" aria-label="Áreas do Meu Ponto" role="tablist">
   <button type="button" class="active" data-area-target="ponto" aria-selected="true"><span class="glyph">◷</span><span>Meu ponto</span></button>
@@ -169,8 +185,8 @@ dialog h2{color:var(--gold-light)}
  </div>
  <section class="panel">
   <div class="toolbar">
-   <div><h2>Registrar jornada</h2><p class="muted" id="quickDay">Data da jornada: —</p></div>
-   <div class="actions" style="margin:0"><button class="btn" id="punchBtn">Registrar batida agora</button><button class="btn secondary" id="editTodayBtn">Editar jornada</button></div>
+   <div><h2>Registrar jornada</h2><p class="muted" id="quickDay">Data da jornada: —</p><p class="help" id="punchGuide" aria-live="polite">Próxima batida será exibida aqui.</p></div>
+   <div class="actions" style="margin:0"><button class="btn punch-card-btn" id="punchBtn" type="button">◷ Bater ponto agora</button><button class="btn secondary" id="editTodayBtn">Editar jornada</button></div>
   </div>
   <div id="quickMarks" class="quick-grid"></div>
  </section>
