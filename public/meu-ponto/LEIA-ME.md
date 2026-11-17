@@ -9,7 +9,7 @@ Página privada e instalável no Android: `/meu-ponto/`.
 - Login por e-mail/senha Supabase Auth. Confirmação por e-mail pode ser exigida.
 - A tela guarda dados na nuvem e mantém cache local quando offline; sincroniza quando recuperar conexão. Em caso de conflito entre dispositivos, não substitui automaticamente a versão remota.
 - A primeira importação é **manual, uma única vez**, usando o arquivo TXT exportado da versão antiga. Não colocar backups pessoais ou horários reais no código do site, pois o repositório é público.
-- Corrige importação da marcação 2026-11-15T00:27 como **saída da jornada do dia 14/11**, somente quando os dados correspondem exatamente ao caso confirmado pelo usuário.
+- Identifica marcação isolada na madrugada e pergunta ao usuário se pertence à jornada anterior antes de vincular.
 - Mantém em branco as batidas não registradas e sinaliza jornadas parciais; não inventa saída.
 - O sábado tem horário previsto próprio. Extras após 16:00 (1º turno seg–sex) ou 23:04 (2º turno seg–sex) são estimativas, sem tolerância legal ou adicional noturno monetizado.
 - A PWA não é um APK. Atualizações do site não exigem reinstalação, mas ainda precisam de publicação/implantação.
@@ -19,8 +19,8 @@ Página privada e instalável no Android: `/meu-ponto/`.
 ## Testes mínimos antes da migração
 
 1. Criar/login na conta com confirmação de e-mail, quando exigida.
-2. Importar o backup de texto e confirmar os 22 registros da fonte (21 jornadas após consolidar a saída de madrugada).
-3. Conferir 26/10 (06:55, 12:00, 12:55, 18:10), 02/11 (14:32, 19:51, 20:50, 23:04) e 14/11–15/11.
+2. Importar o backup de texto e conferir cada jornada, inclusive os registros que atravessaram a meia-noite.
+3. Conferir os dias do primeiro e segundo turnos, principalmente aqueles que atravessaram a meia-noite.
 4. Conferir os horários vazios e preencher pelo papel de horas extras.
 5. Verificar **Salvo na nuvem**, sair, entrar em outro aparelho e conferir se os registros aparecem.
 6. Testar registro offline e sincronização ao voltar a internet.
