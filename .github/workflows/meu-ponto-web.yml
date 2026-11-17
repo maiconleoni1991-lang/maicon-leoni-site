@@ -18,11 +18,13 @@ jobs:
       - name: Validar scripts
         run: |
           node --check docs/meu-ponto/app.js
+          node --check docs/meu-ponto/payroll.js
           node --check docs/meu-ponto/sw.js
       - name: Validar publicação estática
         run: |
           node -e "const fs=require('fs');JSON.parse(fs.readFileSync('docs/meu-ponto/manifest.webmanifest','utf8'))"
           diff public/meu-ponto/app.js docs/meu-ponto/app.js
+          diff public/meu-ponto/payroll.js docs/meu-ponto/payroll.js
           diff public/meu-ponto/index.html docs/meu-ponto/index.html
           diff public/meu-ponto/icon.svg docs/meu-ponto/icon.svg
           diff public/meu-ponto/sw.js docs/meu-ponto/sw.js
