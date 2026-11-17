@@ -190,12 +190,14 @@ function showApp(){
  $("appPanel").classList.remove("hidden");
  $("logoutBtn").classList.remove("hidden");
  $("accountLabel").textContent=(session?.user?.email||"Conta pessoal")+" · histórico privado";
+ setArea("ponto");
  render();
 }
 function showAuth(){
  $("authPanel").classList.remove("hidden");
  $("appPanel").classList.add("hidden");
  $("logoutBtn").classList.add("hidden");
+ window.MeuPontoPayroll?.reset?.();
 }
 function store(){
  if(!cacheKey())return;
@@ -247,6 +249,7 @@ async function doAuth(method){
   restoreCache();showApp();
   await sync(true);
   await loadPayrollSettings();
+  await window.MeuPontoPayroll?.reload?.();
  }catch(e){$("authInfo").textContent="Não foi possível acessar: "+e.message;}
 }
 async function logout(){
@@ -305,6 +308,7 @@ async function sync(silent=false){
    rows[day]=fromDb(result[0]);delete dirty[day];
   }
   store();render();
+  if(window.MeuPontoPayroll)await window.MeuPontoPayroll.reload();
   if(conflicts){
     putStatus(conflicts+" conflito(s) — conferir","warn");
     if(!silent)toast("Existe alteração mais recente na nuvem em "+conflicts+" dia(s). As suas edições locais foram preservadas; faça uma cópia e confira antes de sobrescrever.");
@@ -381,6 +385,7 @@ function render(){
  $("extra100Total").textContent=formatMin(e100);
  $("incompleteTotal").textContent=incomplete;
  renderFinance();
+ window.MeuPontoPayroll?.render?.();
  $("monthNote").textContent=monthRows.length+" jornada(s) · todas as batidas exibidas são os horários reais. Totais de horas e extras somente para jornadas completas. Após previsto: tempo entre fim programado e saída, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos de referência: seg–qui 60 min, sexta 30 min, sábado 15 min; retornar antes não é pendência.";
 }
 function editDay(day){
@@ -598,7 +603,14 @@ async function importFile(file){
  }catch(e){toast("Não foi possível importar: "+e.message);}
  $("backupFile").value="";
 }
+function setArea(area){
+ const allowed=["ponto","espelho","holerite","ajustes"];
+ const tab=allowed.includes(area)?area:"ponto";
+ document.querySelectorAll("[data-area]").forEach(el=>el.classList.toggle("hidden",el.dataset.area!==tab));
+ document.querySelectorAll("[data-area-target]").forEach(el=>{const active=el.dataset.areaTarget===tab;el.classList.toggle("active",active);el.setAttribute("aria-selected",String(active));});
+}
 function init(){
+ document.querySelectorAll("[data-area-target]").forEach(el=>el.addEventListener("click",()=>setArea(el.dataset.areaTarget)));
  $("authForm").addEventListener("submit",e=>{e.preventDefault();doAuth("login");});
  $("signupBtn").addEventListener("click",()=>doAuth("signup"));
  $("logoutBtn").addEventListener("click",logout);
@@ -638,5 +650,9 @@ function init(){
   }else showAuth();
  }catch(e){showAuth();}
 }
+window.MeuPontoContext={
+ month:()=>month,rows:()=>rows,user:()=>idOf(),token:()=>session?.access_token,
+ settings:()=>paySettings,finance:()=>monthFinance(month),refreshSession,endpoint,toast,showArea:setArea
+};
 init();
 })();
