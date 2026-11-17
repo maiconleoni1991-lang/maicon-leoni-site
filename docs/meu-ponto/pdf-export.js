@@ -45,8 +45,23 @@
   return out.length?out:[""];
  }
  function makePDF(input){
-  if(!input||!Array.isArray(input.rows)||!/^\d{4}-\d\d$/.test(input.month||""))throw Error("Competencia ou jornadas invalidas para o espelho.");
-  const doc=[],pages=[];
+  const reports=Array.isArray(input?.months)?input.months:[input];
+  if(!reports.length||reports.length>60)throw Error("Selecione de 1 a 60 meses por arquivo.");
+  const names=new Set();
+  for(const report of reports){
+   if(!report||!Array.isArray(report.rows)||!/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(report.month||"")){
+    throw Error("Competencia ou jornadas invalidas para o espelho.");
+   }
+   if(names.has(report.month))throw Error("Competencia repetida: "+report.month);
+   names.add(report.month);
+   const [yy,mm]=report.month.split("-").map(Number);
+   if(report.rows.length!==new Date(yy,mm,0).getDate()){
+    throw Error("O espelho de "+report.month+" deve conter todos os dias do mes.");
+   }
+  }
+  reports.sort((a,b)=>a.month.localeCompare(b.month));
+  const pages=[];
+  let activeMonth=reports[0].month;
   let commands=[],top=0;
   const startPage=function(){
    commands=[];pages.push(commands);
@@ -55,7 +70,7 @@
    commands.push("1 1 1 rg "+num(MARGIN-9)+" 25 "+num(PAGE_W-2*(MARGIN-9))+" "+num(PAGE_H-44)+" re f");
    line(MARGIN,71,PAGE_W-MARGIN,71,C.gold,2);
    txt("MEU PONTO  |  ESPELHO MENSAL",MARGIN,24,15,C.navy,true);
-   txt("Competencia: "+input.month.split("-").reverse().join("/"),MARGIN,48,10,C.muted,false);
+   txt("Competencia: "+activeMonth.split("-").reverse().join("/"),MARGIN,48,10,C.muted,false);
    txt("Relatorio pessoal para conferencia  •  Batidas reais, sem preenchimento automatico",245,49,8,C.muted,false);
    drawTableHeader();
    txt("Registros mantidos em suas datas originais  |  Horarios apos 00h indicados com +1 dia",MARGIN,554,8,C.muted,false);
@@ -75,52 +90,82 @@
    let x=MARGIN;
    for(const col of COLS){txt(col.name,x+3,90,8,"#ffffff",true);x+=col.w;}
   };
-  startPage();
-  const count=input.rows.length;let written=0,full=0,partials=0;
-  for(const row of input.rows){
-   const cells=[
-    row.date||"",row.weekday||"",row.entry||"",row.breakOut||"",row.breakIn||"",row.exit||"",
-    row.worked||"",row.he60||"",row.he100||"",(row.status||"")+(row.note?" | "+row.note:"")
-   ];
-   const fontSize=7.45;
-   const wrapped=cells.map((v,i)=>rowWrap(v,COLS[i].w,fontSize));
-   const height=Math.max(18,Math.max(...wrapped.map(v=>v.length))*9+7);
-   if(top+height>519){startPage();}
-   rect(MARGIN,top,PAGE_W-2*MARGIN,height,written%2===0?"#f0f4f8":"#ffffff");
-   let x=MARGIN;
-   for(let i=0;i<COLS.length;i++){
-    for(let l=0;l<wrapped[i].length;l++)txt(wrapped[i][l],x+3,top+3+l*9,fontSize,C.ink,false);
-    x+=COLS[i].w;
-    line(x,top,x,top+height,C.line,.28);
+  let totalRows=0;
+  for(let sectionIndex=0;sectionIndex<reports.length;sectionIndex++){
+   const section=reports[sectionIndex];
+   activeMonth=section.month;
+   startPage(); // cada mes comeca em pagina propria
+   const count=section.rows.length;
+   totalRows+=count;
+   let written=0,full=0;
+   for(const row of section.rows){
+    const noteText=(row.status||"")+(row.note?" | "+row.note:"");
+    const cells=[
+     row.date||"",row.weekday||"",row.entry||"",row.breakOut||"",row.breakIn||"",row.exit||"",
+     row.worked||"",row.he60||"",row.he100||"",noteText
+    ];
+    const fontSize=7.45;
+    const wrapped=cells.map((v,i)=>rowWrap(v,COLS[i].w,fontSize));
+    let height=Math.max(18,Math.max(...wrapped.map(v=>v.length))*9+7);
+    // Uma observacao excepcionalmente longa vai para uma pagina suplementar de notas,
+    // sem esconder as quatro marcacoes da linha principal.
+    let extraNoteLines=[];
+    if(height>375){
+     extraNoteLines=wrapped[9].slice(25);
+     wrapped[9]=wrapped[9].slice(0,24).concat(["(continua em nota complementar)"]);
+     height=Math.max(18,Math.max(...wrapped.map(v=>v.length))*9+7);
+    }
+    if(top+height>519)startPage();
+    rect(MARGIN,top,PAGE_W-2*MARGIN,height,written%2===0?"#f0f4f8":"#ffffff");
+    let x=MARGIN;
+    for(let i=0;i<COLS.length;i++){
+     for(let l=0;l<wrapped[i].length;l++)txt(wrapped[i][l],x+3,top+3+l*9,fontSize,C.ink,false);
+     x+=COLS[i].w;
+     line(x,top,x,top+height,C.line,.28);
+    }
+    line(MARGIN,top+height,PAGE_W-MARGIN,top+height,C.line,.36);
+    top+=height;written++;
+    if(row.status==="Completo")full++;
+    if(extraNoteLines.length){
+     // Registra os trechos restantes em pagina dedicada, mantendo o texto pesquisavel.
+     startPage();
+     txt("NOTAS COMPLEMENTARES - "+(row.date||""),MARGIN,126,10,C.navy,true);
+     let noteY=145;
+     for(const ln of extraNoteLines){
+      if(noteY>515){startPage();noteY=126;}
+      txt(ln,MARGIN+6,noteY,8,C.ink,false);
+      noteY+=11;
+     }
+     top=Math.max(top,noteY+15);
+    }
    }
-   line(MARGIN,top+height,PAGE_W-MARGIN,top+height,C.line,.36);
-   top+=height;written++;
-   if(row.status==="Completo")full++;
-   else if(row.status==="Incompleto")partials++;
+   // Garante que o resumo e a assinatura nao ultrapassem o limite da pagina.
+   if(top>346)startPage();else top+=14;
+   txt("RESUMO DO MES",MARGIN,top,11,C.navy,true);
+   top+=22;
+   const stats=section.summary||{};
+   const values=[
+    ["Dias do calendario",String(count)],
+    ["Jornadas registradas",String(stats.registered??0)],
+    ["Jornadas completas",String(stats.complete??full)],
+    ["Horas confirmadas",stats.worked||"0h00"],
+    ["Horas extras 60%",stats.he60||"0h00"],
+    ["Horas extras 100%",stats.he100||"0h00"],
+    ["Horas noturnas (reais)",stats.nightClock||"0h00"]
+   ];
+   const gridW=(PAGE_W-2*MARGIN-12)/3,gridH=33;
+   for(let i=0;i<values.length;i++){
+    const x=MARGIN+(i%3)*(gridW+6),y=top+Math.floor(i/3)*(gridH+6);
+    rect(x,y,gridW,gridH,"#eaf0f6");
+    txt(values[i][0],x+8,y+5,7.5,C.muted,false);
+    txt(values[i][1],x+8,y+17,11.5,C.navy,true);
+   }
+   top+=3*(gridH+6)+7;
+   const note="Todas as datas do calendario constam neste espelho, mesmo sem registros. Ausencia de batidas nao implica hora trabalhada zero. Extras e adicional noturno sao estimativas de conferencia, sujeitas a folgas, compensacao e norma coletiva.";
+   const noteLines=rowWrap(note,PAGE_W-2*MARGIN,8.3);
+   for(const ln of noteLines){txt(ln,MARGIN,top,8.3,C.muted,false);top+=12;}
+   txt("Conferencia do colaborador: _________________________________________________",MARGIN,top+10,8.5,C.ink,false);
   }
-  if(top>434)startPage();else top+=15;
-  txt("RESUMO DO MES",MARGIN,top,11,C.navy,true);top+=22;
-  const stats=input.summary||{};
-  const values=[
-   ["Jornadas registradas",String(stats.registered??0)],
-   ["Jornadas completas",String(stats.complete??full)],
-   ["Horas confirmadas",stats.worked||"0h00"],
-   ["Horas extras 60%",stats.he60||"0h00"],
-   ["Horas extras 100%",stats.he100||"0h00"],
-   ["Horas noturnas (reais)",stats.nightClock||"0h00"]
-  ];
-  const gridW=(PAGE_W-2*MARGIN-12)/3,gridH=36;
-  for(let i=0;i<values.length;i++){
-   const x=MARGIN+(i%3)*(gridW+6),y=top+Math.floor(i/3)*(gridH+6);
-   rect(x,y,gridW,gridH,"#eaf0f6");
-   txt(values[i][0],x+8,y+5,7.5,C.muted,false);
-   txt(values[i][1],x+8,y+17,12,C.navy,true);
-  }
-  top+=2*(gridH+6)+8;
-  const note="As horas e adicionais sao estimativas para conferencia. Jornadas com batidas ausentes nao entram nos totais confirmados. Domingos e feriados podem depender de compensacao e norma coletiva. Nao e documento oficial do empregador.";
-  const noteLines=rowWrap(note,PAGE_W-2*MARGIN,8.4);
-  for(const ln of noteLines){txt(ln,MARGIN,top,8.4,C.muted,false);top+=12;}
-  txt("Conferencia do colaborador: _________________________________________________",MARGIN,top+9,8.5,C.ink,false);
   // Base14 Helvetica/WinAnsi: pagina vetorial com texto selecionavel, sem dependencia externa.
   const objects=[null];
   const add=obj=>{objects.push(obj);return objects.length-1;};
@@ -148,7 +193,10 @@
   out+="trailer\n<< /Size "+objects.length+" /Root "+catId+" 0 R >>\nstartxref\n"+xrefOffset+"\n%%EOF\n";
   const bytes=new Uint8Array(out.length);
   for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;
-  return {bytes,pages:pages.length,rows:count,name:"MeuPonto_Espelho_"+input.month+".pdf"};
+  const name=reports.length===1?
+   "MeuPonto_Espelho_"+reports[0].month+".pdf":
+   "MeuPonto_Espelhos_"+reports[0].month+"_a_"+reports[reports.length-1].month+"_"+reports.length+"meses.pdf";
+  return {bytes,pages:pages.length,rows:totalRows,months:reports.length,name};
  }
 
  const latestUrls={download:null,preview:null};
