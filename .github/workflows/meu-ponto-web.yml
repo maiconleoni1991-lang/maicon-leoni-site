@@ -1,10 +1,10 @@
 name: Validar Meu Ponto Web
 on:
   pull_request:
-    paths: ['public/meu-ponto/**', 'docs/meu-ponto/**', '.github/workflows/meu-ponto-web.yml']
+    paths: ['public/meu-ponto/**', 'docs/meu-ponto/**', 'tests/meu-ponto-render.cjs', '.github/workflows/meu-ponto-web.yml']
   push:
     branches: [main]
-    paths: ['public/meu-ponto/**', 'docs/meu-ponto/**', '.github/workflows/meu-ponto-web.yml']
+    paths: ['public/meu-ponto/**', 'docs/meu-ponto/**', 'tests/meu-ponto-render.cjs', '.github/workflows/meu-ponto-web.yml']
 permissions:
   contents: read
 jobs:
@@ -21,6 +21,8 @@ jobs:
           node --check docs/meu-ponto/payroll.js
           node --check docs/meu-ponto/pdf-export.js
           node --check docs/meu-ponto/sw.js
+      - name: Validar indicadores e PDF em execucao
+        run: node tests/meu-ponto-render.cjs
       - name: Validar publicação estática
         run: |
           node -e "const fs=require('fs');JSON.parse(fs.readFileSync('docs/meu-ponto/manifest.webmanifest','utf8'))"
