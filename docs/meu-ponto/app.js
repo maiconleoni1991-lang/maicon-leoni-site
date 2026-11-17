@@ -14,7 +14,7 @@ const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
 const nowLocal=()=>{const d=new Date();return today()+"T"+pad(d.getHours())+":"+pad(d.getMinutes());};
 const cleanTime=v=>v?String(v).slice(0,16):"";
-const blank=day=>({work_day:day,shift:day<"2026-11-02"?1:2,entry_at:"",break_out_at:"",break_in_at:"",exit_at:"",note:"",holiday:false,_serverUpdatedAt:null});
+const blank=day=>({work_day:day,shift:day<"2026-11-02"?1:2,entry_at:"",break_out_at:"",break_in_at:"",exit_at:"",note:"",holiday:false,holiday_override:null,_serverUpdatedAt:null});
 const ms=v=>v?new Date(v).getTime():NaN;
 const minutes=(a,b)=>a&&b&&ms(b)>=ms(a)?Math.round((ms(b)-ms(a))/60000):0;
 const formatMin=n=>Math.floor(n/60)+"h"+pad(n%60);
@@ -34,6 +34,130 @@ const shiftEnd=r=>{
  const minute=r.shift===2&&isSat(r.work_day)?30:r.shift===2?4:0;
  return new Date(y,m-1,d,hour,minute).getTime();
 };
+
+const PAY_DEFAULT={monthly_salary:6160,hour_divisor:220,night_rate_pct:35,he60_pct:60,he100_pct:100,employment_start:"2026-10-22"};
+let paySettings={...PAY_DEFAULT};
+const HOLIDAY_FIXED={
+ "01-01":"Confraternização Universal (nacional)","04-21":"Tiradentes (nacional)",
+ "05-01":"Dia do Trabalho (nacional)","07-09":"Revolução Constitucionalista (SP)",
+ "09-07":"Independência do Brasil (nacional)","10-12":"Nossa Senhora Aparecida (nacional)",
+ "11-02":"Finados (nacional)","11-15":"Proclamação da República (nacional)",
+ "11-20":"Consciência Negra (nacional)","12-25":"Natal (nacional)",
+ "05-15":"Aniversário de Monte Alto (municipal)","08-06":"Senhor Bom Jesus (municipal)"
+};
+function holidayName(day){
+ if(day==="2026-04-03")return "Paixão de Cristo (2026)";
+ return HOLIDAY_FIXED[day.slice(5)]||null;
+}
+function effectiveHoliday(day,reference){
+ const r=reference?.work_day===day?reference:rows[day];
+ if(r?.holiday_override===true)return true;
+ if(r?.holiday_override===false)return false;
+ return !!holidayName(day)||(r?.holiday===true);
+}
+const premiumDay=(day,reference)=>isSun(day)||effectiveHoliday(day,reference);
+function dateAt(timestamp){
+ const d=new Date(timestamp);
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+function payrollForDay(r){
+ const out={valid:false,nightClock:0,nightPaid:0,he60Day:0,he60Night:0,he100Day:0,he100Night:0,workClock:0};
+ const times=SLOTS.map(k=>r[k]);
+ if(!times.every(Boolean)||times.some((v,i)=>i>0&&ms(v)<=ms(times[i-1])))return out;
+ out.valid=true;
+ const end=shiftEnd(r);
+ for(const [a,b] of [[r.entry_at,r.break_out_at],[r.break_in_at,r.exit_at]]){
+  for(let t=ms(a);t<ms(b);t+=60000){
+   const d=new Date(t),day=dateAt(t);
+   const night=d.getHours()>=22||d.getHours()<5;
+   const weighting=(night?60/52.5:1)/60;
+   out.workClock+=1/60;
+   if(night){out.nightClock+=1/60;out.nightPaid+=weighting;}
+   if(premiumDay(day,r)){
+    if(night)out.he100Night+=weighting;else out.he100Day+=weighting;
+   }else if(t>=end){
+    if(night)out.he60Night+=weighting;else out.he60Day+=weighting;
+   }
+  }
+ }
+ return out;
+}
+const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function monthFinance(period){
+ const [year,mo]=period.split("-").map(Number);
+ const countDays=new Date(year,mo,0).getDate();
+ let nightClock=0,nightPaid=0,he60Day=0,he60Night=0,he100Day=0,he100Night=0,worked=0,complete=0,incomplete=0;
+ for(const r of Object.values(rows).filter(x=>x.work_day?.startsWith(period))){
+  const x=payrollForDay(r);
+  if(!x.valid){incomplete++;continue;}
+  complete++;worked+=x.workClock;
+  nightClock+=x.nightClock;nightPaid+=x.nightPaid;
+  he60Day+=x.he60Day;he60Night+=x.he60Night;he100Day+=x.he100Day;he100Night+=x.he100Night;
+ }
+ const rate=Number(paySettings.monthly_salary)/Number(paySettings.hour_divisor);
+ const nightPct=Number(paySettings.night_rate_pct)/100;
+ const x60=Number(paySettings.he60_pct)/100, x100=Number(paySettings.he100_pct)/100;
+ const extra60=rate*(he60Day*(1+x60)+he60Night*(1+x60+nightPct*x60));
+ const extra100=rate*(he100Day*(1+x100)+he100Night*(1+x100+nightPct*x100));
+ const nightValue=rate*nightPct*nightPaid;
+ let rests=0,useful=0;
+ for(let d=1;d<=countDays;d++){
+  const day=year+"-"+pad(mo)+"-"+pad(d);
+  if(day<paySettings.employment_start)continue;
+  if(premiumDay(day,rows[day]))rests++;else useful++;
+ }
+ const dsrHE=useful?((extra60+extra100)/useful)*rests:0;
+ const dsrNight=useful?(nightValue/useful)*rests:0;
+ return {rate,nightClock,nightPaid,he60Hours:he60Day+he60Night,he100Hours:he100Day+he100Night,worked,complete,incomplete,extra60,extra100,nightValue,dsrHE,dsrNight,additional:extra60+extra100+nightValue+dsrHE+dsrNight,useful,rests};
+}
+function renderFinance(){
+ if(!$("financeTotal"))return;
+ const f=monthFinance(month);
+ $("financeNightHours").textContent=formatMin(Math.round(f.nightClock*60))+" horas reais / "+formatMin(Math.round(f.nightPaid*60))+" horas reduzidas";
+ $("financeNightValue").textContent=money(f.nightValue);
+ $("financeExtra60").textContent=money(f.extra60)+" · "+formatMin(Math.round(f.he60Hours*60));
+ $("financeExtra100").textContent=money(f.extra100)+" · "+formatMin(Math.round(f.he100Hours*60));
+ $("financeDSR").textContent=money(f.dsrHE+f.dsrNight);
+ $("financeTotal").textContent=money(f.additional);
+ $("financeBase").textContent=money(f.rate)+"/hora · salário-base "+money(paySettings.monthly_salary);
+ $("financeNote").textContent="Prévia de acréscimos brutos, não valor líquido. DSR estimado usando "+f.rests+" dia(s) de descanso / "+f.useful+" dia(s) úteis. Inclui hora noturna reduzida e adicional noturno na base da hora extra noturna. Somente jornadas completas. Convenção coletiva, compensações, banco de horas e descontos podem alterar o holerite; outubro é mês de admissão.";
+}
+function renderPayrollForm(){
+ if(!$("financeForm"))return;
+ $("monthlySalary").value=paySettings.monthly_salary;
+ $("hourDivisor").value=paySettings.hour_divisor;
+ $("nightRate").value=paySettings.night_rate_pct;
+ $("extra60Rate").value=paySettings.he60_pct;
+ $("extra100Rate").value=paySettings.he100_pct;
+}
+async function loadPayrollSettings(){
+ if(!session)return;
+ try{
+  await refreshSession();
+  const r=await endpoint("/rest/v1/mp_user_settings?select=*&user_id=eq."+encodeURIComponent(idOf()),"GET",undefined,session.access_token);
+  if(r?.length)paySettings={...PAY_DEFAULT,...r[0]};
+  renderPayrollForm();render();
+ }catch(e){toast("Prévia financeira com valores padrão. Parâmetros online indisponíveis: "+e.message);}
+}
+async function savePayrollSettings(e){
+ e.preventDefault();
+ const p={monthly_salary:Number($("monthlySalary").value),hour_divisor:Number($("hourDivisor").value),
+  night_rate_pct:Number($("nightRate").value),he60_pct:Number($("extra60Rate").value),
+  he100_pct:Number($("extra100Rate").value),employment_start:"2026-10-22"};
+ if(!p.monthly_salary||p.monthly_salary<1||p.hour_divisor<1||p.night_rate_pct<20||p.he60_pct<50||p.he100_pct<100){
+  toast("Confira os parâmetros financeiros.");return;
+ }
+ $("financeSave").disabled=true;
+ try{
+  await refreshSession();
+  const r=await endpoint("/rest/v1/mp_user_settings?on_conflict=user_id","POST",{user_id:idOf(),...p},session.access_token);
+  if(!r?.length)throw Error("Sem confirmação da nuvem");
+  paySettings={...PAY_DEFAULT,...r[0]};
+  renderPayrollForm();render();toast("Parâmetros financeiros salvos na nuvem.");
+ }catch(err){toast("Não foi possível salvar: "+err.message);}
+ finally{$("financeSave").disabled=false;}
+}
+
 function summarize(r){
  const times=SLOTS.map(k=>r[k]);
  const valid=times.every(Boolean)&&SLOTS.every((k,i)=>i===0||ms(times[i])>ms(times[i-1]));
@@ -46,12 +170,9 @@ function summarize(r){
  const observedAfter=r.exit_at?Math.max(0,Math.round((ms(r.exit_at)-scheduledEnd)/60000)):0;
  // "Após o fim previsto" é referência, inclusive em jornada incompleta, não pagamento aprovado.
  const afterEnd=gross?Math.min(gross,observedAfter):observedAfter;
- const afterSegment=(a,b)=>a&&b?Math.max(0,Math.round((ms(b)-Math.max(ms(a),scheduledEnd))/60000)):0;
- let he60=0,he100=0;
- if(valid){
-   if(isSun(r.work_day)||r.holiday)he100=confirmed;
-   else he60=afterSegment(r.entry_at,r.break_out_at)+afterSegment(r.break_in_at,r.exit_at);
- }
+ const x=valid?payrollForDay(r):null;
+ const he60=x?Math.round((x.he60Day+x.he60Night)*60):0;
+ const he100=x?Math.round((x.he100Day+x.he100Night)*60):0;
  const breakMinutes=minutes(r.break_out_at,r.break_in_at);
  return {valid,partial,gross,he60,he100,afterEnd,breakMinutes,noBreak:!!noBreak};
 }
@@ -87,7 +208,7 @@ function restoreCache(){
 function endpoint(path,method="GET",data,token){
  const headers={"apikey":KEY,"Content-Type":"application/json"};
  if(token)headers.Authorization="Bearer "+token;
- if(method==="POST"||method==="PATCH")headers.Prefer="return=representation";
+ if(method==="POST"||method==="PATCH")headers.Prefer=(path.includes("on_conflict=")?"resolution=merge-duplicates,":"")+"return=representation";
  return fetch(BASE+path,{method,headers,body:data===undefined?undefined:JSON.stringify(data),cache:"no-store"})
   .then(async response=>{
    let result=null;
@@ -125,6 +246,7 @@ async function doAuth(method){
   localStorage.setItem(SESSION_KEY,JSON.stringify(session));
   restoreCache();showApp();
   await sync(true);
+  await loadPayrollSettings();
  }catch(e){$("authInfo").textContent="Não foi possível acessar: "+e.message;}
 }
 async function logout(){
@@ -142,14 +264,14 @@ function saveRow(r){
 }
 function makePayload(r){
  const out={user_id:idOf(),work_day:r.work_day,shift:Number(r.shift)||2,
-    note:String(r.note||"").slice(0,2000),holiday:!!r.holiday,updated_at:new Date().toISOString()};
+    note:String(r.note||"").slice(0,2000),holiday:!!r.holiday,holiday_override:r.holiday_override??null,updated_at:new Date().toISOString()};
  SLOTS.forEach(k=>out[k]=r[k]?r[k]+":00":null);
  return out;
 }
 function fromDb(r){
  const out=blank(r.work_day);
  out.shift=Number(r.shift)||2;
- out.note=r.note||"";out.holiday=!!r.holiday;
+ out.note=r.note||"";out.holiday=!!r.holiday;out.holiday_override=r.holiday_override??null;
  SLOTS.forEach(k=>out[k]=cleanTime(r[k]));
  out._serverUpdatedAt=r.updated_at||null;
  return out;
@@ -258,6 +380,7 @@ function render(){
  $("extra60Total").textContent=formatMin(e60);
  $("extra100Total").textContent=formatMin(e100);
  $("incompleteTotal").textContent=incomplete;
+ renderFinance();
  $("monthNote").textContent=monthRows.length+" jornada(s) · todas as batidas exibidas são os horários reais. Totais de horas e extras somente para jornadas completas. Após previsto: tempo entre fim programado e saída, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos de referência: seg–qui 60 min, sexta 30 min, sábado 15 min; retornar antes não é pendência.";
 }
 function editDay(day){
@@ -268,7 +391,10 @@ function editDay(day){
  $("expectedBreakInfo").textContent=plannedBreak===null?"Domingo: registre o intervalo real, se houver.":"Intervalo de referência: "+plannedBreak+" minutos. Se voltar alguns minutos antes, o registro será aceito. O espelho mostrará a hora exata de cada batida.";
  $("entryAt").value=r.entry_at;$("breakOut").value=r.break_out_at;
  $("breakIn").value=r.break_in_at;$("exitAt").value=r.exit_at;
- $("note").value=r.note||"";$("holiday").checked=!!r.holiday;
+ $("note").value=r.note||"";
+ $("holidayMode").value=r.holiday_override===true?"yes":r.holiday_override===false?"no":"auto";
+ const label=holidayName(day);
+ $("holidaySuggestion").textContent=label?"Data do calendário: "+label+". Você pode alterar para dia normal.":isSun(day)?"Domingo (100%, mesmo sem feriado).":"Sem feriado oficial conhecido; você pode marcar manualmente se houver feriado local ou compensação específica.";
  $("editDialog").showModal();
 }
 function submitDay(ev){
@@ -279,7 +405,7 @@ function submitDay(ev){
  const r={...old,work_day:day,shift:Number($("shift").value),
    entry_at:$("entryAt").value,break_out_at:$("breakOut").value,
    break_in_at:$("breakIn").value,exit_at:$("exitAt").value,
-   note:$("note").value,holiday:$("holiday").checked};
+   note:$("note").value,holiday:old.holiday||false,holiday_override:$("holidayMode").value==="auto"?null:$("holidayMode").value==="yes"};
  let last=0;
  for(const k of SLOTS){
   if(!r[k])continue;
@@ -475,6 +601,8 @@ function init(){
   editDay(day);
  });
  $("dayForm").addEventListener("submit",submitDay);
+ $("financeForm").addEventListener("submit",savePayrollSettings);
+ renderPayrollForm();
  $("closeDialog").addEventListener("click",()=>$("editDialog").close());
  $("cancelEdit").addEventListener("click",()=>$("editDialog").close());
  $("importBtn").addEventListener("click",()=>$("backupFile").click());
@@ -494,7 +622,7 @@ function init(){
  try{
   const old=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
   if(old?.user?.id&&old?.refresh_token){
-   session=old;restoreCache();showApp();sync(true);
+   session=old;restoreCache();showApp();sync(true).then(loadPayrollSettings);
   }else showAuth();
  }catch(e){showAuth();}
 }
