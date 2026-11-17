@@ -30,18 +30,23 @@ const shiftEnd=r=>{
 function summarize(r){
  const times=SLOTS.map(k=>r[k]);
  const valid=times.every(Boolean)&&SLOTS.every((k,i)=>i===0||ms(times[i])>ms(times[i-1]));
- const partial=minutes(r.entry_at,r.break_out_at)+minutes(r.break_in_at,r.exit_at);
+ const confirmed=minutes(r.entry_at,r.break_out_at)+minutes(r.break_in_at,r.exit_at);
  const gross=minutes(r.entry_at,r.exit_at);
- const worked=valid?partial:partial;
+ // Se não existem intervalos registrados, a duração é somente uma estimativa.
+ const noBreak=r.entry_at&&r.exit_at&&!r.break_out_at&&!r.break_in_at;
+ const partial=confirmed|| (noBreak?gross:0);
+ const scheduledEnd=shiftEnd(r);
+ const observedAfter=r.exit_at?Math.max(0,Math.round((ms(r.exit_at)-scheduledEnd)/60000)):0;
+ // "Após o fim previsto" é referência, inclusive em jornada incompleta, não pagamento aprovado.
+ const afterEnd=gross?Math.min(gross,observedAfter):observedAfter;
+ const afterSegment=(a,b)=>a&&b?Math.max(0,Math.round((ms(b)-Math.max(ms(a),scheduledEnd))/60000)):0;
  let he60=0,he100=0;
  if(valid){
-   if(isSun(r.work_day)||r.holiday)he100=worked;
-   else{
-     const after=Math.max(0,Math.round((ms(r.exit_at)-shiftEnd(r))/60000));
-     he60=Math.min(worked,after);
-   }
+   if(isSun(r.work_day)||r.holiday)he100=confirmed;
+   else he60=afterSegment(r.entry_at,r.break_out_at)+afterSegment(r.break_in_at,r.exit_at);
  }
- return {valid,partial:worked,gross,he60,he100};
+ const breakMinutes=minutes(r.break_out_at,r.break_in_at);
+ return {valid,partial,gross,he60,he100,afterEnd,breakMinutes,noBreak:!!noBreak};
 }
 function putStatus(text,kind=""){
  const el=$("syncStatus");
@@ -225,9 +230,10 @@ function render(){
   const date=new Date(r.work_day+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short"});
   cell(fmtDate(r.work_day)+" "+date);
   SLOTS.forEach(k=>cell(displayTime(r[k],r.work_day)));
-  cell(sum.valid?formatMin(sum.partial):sum.partial?formatMin(sum.partial)+" parcial":sum.gross?formatMin(sum.gross)+" bruto":"—");
-  cell(sum.valid?formatMin(sum.he60):"—");
-  cell(sum.valid?formatMin(sum.he100):"—");
+  cell(sum.valid?formatMin(sum.partial):sum.partial?formatMin(sum.partial)+" a conferir":"—");
+  cell(r.exit_at?formatMin(sum.afterEnd):"—");
+  cell(sum.valid&&sum.he60?formatMin(sum.he60):"—");
+  cell(sum.valid&&sum.he100?formatMin(sum.he100):"—");
   const td=document.createElement("td"),tag=document.createElement("span");
   tag.className="tag"+(sum.valid?" ok":"");
   tag.textContent=sum.valid?"Completo":"Em aberto";
@@ -238,14 +244,14 @@ function render(){
  });
  if(!monthRows.length){
   const tr=document.createElement("tr"),td=document.createElement("td");
-  td.colSpan=9;td.textContent="Nenhuma jornada neste mês. Use Editar jornada para lançar uma data.";
+  td.colSpan=10;td.textContent="Nenhuma jornada neste mês. Use Editar jornada para lançar uma data.";
   tr.append(td);body.append(tr);
  }
  $("workedTotal").textContent=formatMin(work);
  $("extra60Total").textContent=formatMin(e60);
  $("extra100Total").textContent=formatMin(e100);
  $("incompleteTotal").textContent=incomplete;
- $("monthNote").textContent=monthRows.length+" jornada(s) listada(s) · totais consideram apenas jornadas com quatro batidas válidas. Horas extras estimadas pela saída prevista, sem aplicar a tolerância.";
+ $("monthNote").textContent=monthRows.length+" jornada(s) · totais de horas e extras somente para jornadas com as quatro batidas. Após previsto: tempo entre fim programado e saída, apenas referência, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30.";
 }
 function editDay(day){
  const r=rows[day]||blank(day);
@@ -287,6 +293,99 @@ function shiftMonth(delta){
  const [y,m]=month.split("-").map(Number),d=new Date(y,m-1+delta,1);
  month=d.getFullYear()+"-"+pad(d.getMonth()+1);render();
 }
+
+function dateWeek(day){
+ return new Date(day+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","");
+}
+function escHtml(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function missingFields(r){
+ return SLOTS.filter(k=>!r[k]).map(k=>LABELS[SLOTS.indexOf(k)].toLowerCase());
+}
+function monthCalendar(){
+ const [year,mo]=month.split("-").map(Number);
+ const total=new Date(year,mo,0).getDate(),items=[];
+ for(let d=1;d<=total;d++){
+  const date=year+"-"+pad(mo)+"-"+pad(d);
+  items.push(rows[date]||blank(date));
+ }
+ return items;
+}
+function printMonth(){
+ if(!session){toast("Entre na sua conta para gerar o espelho.");return;}
+ const [year,mo]=month.split("-").map(Number);
+ const monthLabel=new Date(year,mo-1,1).toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase();
+ const data=monthCalendar();
+ let confirmed=0,extra60=0,extra100=0,afterTotal=0,pending=0,registered=0;
+ const body=data.map(r=>{
+  const has=SLOTS.some(k=>!!r[k]),sum=summarize(r);
+  if(has)registered++;
+  if(has&&sum.valid){confirmed+=sum.partial;extra60+=sum.he60;extra100+=sum.he100;}
+  if(has&&!sum.valid)pending++;
+  if(has&&r.exit_at)afterTotal+=sum.afterEnd;
+  const rest=missingFields(r),problems=[];
+  if(has&&rest.length)problems.push("Faltam: "+rest.join(", "));
+  if(r.shift===2&&!isSat(r.work_day)&&!isSun(r.work_day)&&r.break_out_at&&r.break_in_at&&sum.breakMinutes!==60){
+   problems.push("Intervalo: "+sum.breakMinutes+" min (previsto 60 min)");
+  }
+  const messages=[r.note,...problems].filter(Boolean).join(" | ");
+  const status=!has?"Sem registro":sum.valid?"Completo":"Incompleto";
+  const work=has&&sum.partial?formatMin(sum.partial)+(sum.valid?"":" **"):"";
+  const record=[
+    fmtDate(r.work_day),dateWeek(r.work_day),r.shift===1?"1º turno":"2º turno",
+    displayTime(r.entry_at,r.work_day)==="—"?"":displayTime(r.entry_at,r.work_day),
+    displayTime(r.break_out_at,r.work_day)==="—"?"":displayTime(r.break_out_at,r.work_day),
+    displayTime(r.break_in_at,r.work_day)==="—"?"":displayTime(r.break_in_at,r.work_day),
+    displayTime(r.exit_at,r.work_day)==="—"?"":displayTime(r.exit_at,r.work_day),
+    work,has&&r.exit_at?formatMin(sum.afterEnd):"",
+    status,messages,
+    isSun(r.work_day)?"—":r.shift===1?(isSat(r.work_day)?"11:00":"16:00"):(isSat(r.work_day)?"18:30":"23:04")
+  ];
+  return "<tr"+(!has?" class='blank'":"")+">"+record.map((value,i)=>"<td"+(i===10?" class='note'":"")+">"+escHtml(value)+"</td>").join("")+"</tr>";
+ }).join("");
+ const reportHtml=[
+  "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>",
+  "<title>Espelho de ponto - "+escHtml(monthLabel)+"</title>",
+  "<style>",
+  "@page{size:A4 landscape;margin:9mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#152b47;background:#fff;margin:12px}",
+  ".top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.eyebrow{font-weight:700;font-size:9px;letter-spacing:.12em;color:#51647b}",
+  "h1{font-size:19px;margin:3px 0 2px}.subtitle{font-size:10px;margin:3px 0 10px;color:#526780}.meta{text-align:right;font-size:9px;color:#53677d}",
+  "table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8px}th{background:#193b65;color:white;padding:5px 2px;text-align:left;border:1px solid #bdcbda}",
+  "td{padding:4px 3px;border:1px solid #cfdae6;vertical-align:top;overflow-wrap:anywhere;word-break:normal}",
+  "tbody tr:nth-child(even){background:#eff4f9}tbody tr.blank{color:#8994a1;background:#fafbfd}",
+  "th:nth-child(1){width:7%}th:nth-child(2){width:4%}th:nth-child(3){width:7%}th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:8%}",
+  "th:nth-child(8){width:7%}th:nth-child(9){width:8%}th:nth-child(10){width:8%}th:nth-child(11){width:18%}th:nth-child(12){width:7%}",
+  "thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}",
+  ".summary{display:flex;gap:8px;margin:10px 0}.summary div{flex:1;border:1px solid #d1dce8;padding:7px;background:#f5f8fc}",
+  ".summary span{display:block;font-size:8px;color:#55677f}.summary strong{display:block;margin-top:4px;font-size:13px}",
+  ".foot{font-size:9px;color:#4c5f76;line-height:1.5;margin-top:9px}",
+  ".sign{display:flex;justify-content:space-between;margin-top:17px;font-size:9px;color:#536779}.sign span{display:block;width:44%;border-top:1px solid #8495a9;padding-top:5px}",
+  ".toolbar{padding:10px 0 16px;border-bottom:1px solid #ddd;margin-bottom:13px;font-size:13px}.toolbar button{padding:9px 15px;background:#2365d5;border:0;color:white;border-radius:7px;font-weight:700}",
+  "@media print{body{margin:0}.toolbar{display:none}}",
+  "</style></head><body>",
+  "<div class='toolbar'>Prévia do espelho mensal — para criar o arquivo, escolha <b>Imprimir</b> e, no destino, <b>Salvar como PDF</b>. <button onclick='window.print()'>Imprimir / Salvar PDF</button></div>",
+  "<div class='top'><div><div class='eyebrow'>MEU PONTO · RELATÓRIO MENSAL</div><h1>FOLHA DE PONTO | "+escHtml(monthLabel)+"</h1>",
+  "<div class='subtitle'>Espelho de ponto • 1º e 2º turno • batidas preservadas mesmo quando incompletas</div></div>",
+  "<div class='meta'>Gerado em "+escHtml(new Date().toLocaleString("pt-BR"))+"<div>Relatório pessoal para conferência</div></div></div>",
+  "<table><thead><tr>"+["Data","Dia","Turno","Entrada","Saída intervalo","Retorno","Saída final","Horas apuradas**","Após fim previsto*","Situação","Apontamentos / observações","Fim previsto"].map(s=>"<th>"+escHtml(s)+"</th>").join("")+"</tr></thead><tbody>"+body+"</tbody></table>",
+  "<div class='summary'><div><span>Jornadas registradas</span><strong>"+registered+"</strong></div>",
+  "<div><span>Horas confirmadas</span><strong>"+formatMin(confirmed)+"</strong></div>",
+  "<div><span>Extras 60%*</span><strong>"+formatMin(extra60)+"</strong></div>",
+  "<div><span>Extras 100%*</span><strong>"+formatMin(extra100)+"</strong></div>",
+  "<div><span>Tempo após previsto*</span><strong>"+formatMin(afterTotal)+"</strong></div>",
+  "<div><span>Jornadas incompletas</span><strong>"+pending+"</strong></div></div>",
+  "<div class='foot'>* Após fim previsto é a diferença entre a saída registrada e o fim programado (1º turno: 16h de segunda a sexta e 11h sábado; 2º turno: 23h04 de segunda a sexta e 18h30 sábado). Pode conter jornada incompleta e não equivale automaticamente a hora extra remunerada. Extras 60%/100% são estimativas somente de jornadas completas. Domingos e feriados marcados entram como 100%.<br>",
+  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Intervalos não são preenchidos automaticamente. No 2º turno, o descanso previsto de 1h ocorre no horário efetivamente registrado pelo usuário. Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
+  "<div class='sign'><span>Conferência do colaborador</span><span>Conferência / observações</span></div>",
+  "</body></html>"
+ ].join("");
+ const view=window.open("","_blank");
+ if(!view){toast("Permita abrir a prévia do relatório no navegador.");return;}
+ view.document.open();view.document.write(reportHtml);view.document.close();
+ view.focus();
+}
+
 function download(){
  const days=Object.values(rows).filter(r=>SLOTS.some(k=>!!r[k])).sort((a,b)=>a.work_day.localeCompare(b.work_day));
  const lines=["Meu Ponto – Backup simples"];
@@ -370,6 +469,7 @@ function init(){
  $("importBtn").addEventListener("click",()=>$("backupFile").click());
  $("backupFile").addEventListener("change",e=>{if(e.target.files?.[0])importFile(e.target.files[0]);});
  $("exportBtn").addEventListener("click",download);
+ $("printMonthBtn").addEventListener("click",printMonth);
  $("syncBtn").addEventListener("click",()=>sync());
  window.addEventListener("online",()=>sync());
  window.addEventListener("offline",()=>putStatus("Offline — salvo neste aparelho","warn"));
