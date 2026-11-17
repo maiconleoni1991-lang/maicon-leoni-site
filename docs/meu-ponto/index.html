@@ -137,7 +137,8 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
    <div><label for="breakIn">Retorno do intervalo</label><input id="breakIn" type="datetime-local"></div>
    <div><label for="exitAt">Saída final</label><input id="exitAt" type="datetime-local"></div>
   </div>
-  <div class="help">1º turno: 07:00–16:00 (seg–sex), sábado 07:00–11:00. 2º turno desde 02/11: 14:36–23:04 (seg–sex), sábado 12:50–18:30. Intervalo previsto de 1 hora nos dias úteis: registre a saída e o retorno nos horários reais, sem preenchimento automático. Exemplo: saída final de 14/11 às 00:27 deve ser registrada em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
+  <div class="help" id="expectedBreakInfo">Intervalo: segunda a quinta 60 minutos; sexta-feira 30 minutos; sábado 15 minutos. Registre saída e retorno nos horários reais.</div>
+  <div class="help">1º turno: 07:00–16:00 (seg–sex), sábado 07:00–11:00. 2º turno desde 02/11: 14:36–23:04 (seg–sex), sábado 12:50–18:30. Intervalos não são preenchidos automaticamente. Exemplo: saída final da jornada de 14/11 às 00:27 deve ser registrada em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
   <div style="margin-top:13px"><label for="note">Observações</label><textarea id="note" rows="3" maxlength="2000" placeholder="Ex.: hora extra, treinamento, papel com horário real"></textarea></div>
   <div style="margin-top:13px"><label><input id="holiday" type="checkbox" style="width:auto"> Feriado</label></div>
   <div class="actions"><button class="btn" type="submit">Salvar jornada</button><button class="btn secondary" id="cancelEdit" type="button">Cancelar</button></div>
