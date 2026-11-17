@@ -140,9 +140,15 @@ dialog h2{color:var(--gold-light)}
  main{padding-bottom:calc(170px + env(safe-area-inset-bottom))}
 }
 
+
+.pdf-preview{border:1px solid #405572;border-radius:14px;margin-top:16px;padding:14px;background:#0f2239}
+.pdf-preview iframe{width:100%;height:min(72vh,780px);min-height:420px;background:#fff;border:1px solid #6b7d94;border-radius:10px}
+.pdf-preview h3{color:#e9d1a1;font-size:1rem}
+@media(max-width:720px){.pdf-preview iframe{min-height:350px;height:63vh}.pdf-preview{padding:9px}}
 </style>
 <script defer src="./app.js"></script>
 <script defer src="./payroll.js"></script>
+<script defer src="./pdf-export.js"></script>
 </head>
 <body>
 <header>
@@ -207,7 +213,11 @@ dialog h2{color:var(--gold-light)}
  <div data-area="espelho" class="workspaceArea hidden">
  <section class="panel">
   <div class="toolbar">
-   <div><h2>Folha mensal</h2><button type="button" class="btn small" id="printMonthBtn">Gerar PDF / imprimir</button></div>
+   <div><h2>Folha mensal</h2><p class="muted" style="margin:0">Espelho de ponto com todas as batidas da competência</p></div>
+   <div class="actions" style="margin:0">
+    <button type="button" class="btn small" id="downloadMonthPdfBtn">Baixar PDF</button>
+    <button type="button" class="btn small secondary" id="previewMonthPdfBtn">Visualizar PDF</button>
+   </div>
    <div class="month-controls"><button class="btn small secondary" id="prevMonth">‹ Anterior</button><strong id="monthTitle">—</strong><button class="btn small secondary" id="nextMonth">Próximo ›</button></div>
   </div>
   <div class="actions" style="margin:0 0 12px">
@@ -220,7 +230,16 @@ dialog h2{color:var(--gold-light)}
    <thead><tr><th>Data</th><th>Entrada</th><th>Almoço/Intervalo</th><th>Retorno</th><th>Saída</th><th>Trabalhadas</th><th>Após previsto*</th><th>HE 60%</th><th>HE 100%</th><th>Status</th></tr></thead>
    <tbody id="monthRows"></tbody>
   </table></div>
-  <p class="muted" id="monthNote"></p><p class="help">Para guardar o espelho do mês, toque em <b>Gerar PDF / imprimir</b> e escolha <b>Salvar como PDF</b> no destino de impressão do celular. Também pode imprimir em A4 na horizontal.</p>
+  <p class="muted" id="monthNote"></p>
+  <div id="pdfDownloadResult" aria-live="polite"></div>
+  <div id="pdfPreviewBox" class="hidden pdf-preview">
+   <div class="toolbar" style="margin-bottom:12px"><h3 style="margin:0">Visualização do espelho em PDF</h3>
+     <a id="pdfPreviewOpenLink" class="btn secondary" href="#" target="_blank" rel="noopener noreferrer">Abrir PDF em outra guia</a>
+   </div>
+   <iframe id="pdfPreviewFrame" title="Visualização do espelho mensal em PDF" loading="lazy"></iframe>
+   <p class="help">Se seu navegador não conseguir exibir a prévia, toque em “Abrir PDF em outra guia” ou use “Baixar PDF”.</p>
+  </div>
+  <p class="help">O PDF é criado diretamente no seu aparelho com os horários reais do mês selecionado, inclusive batidas após meia-noite. Não é necessário usar a impressão.</p>
  </section>
  </div>
  <div data-area="holerite" class="workspaceArea hidden">
