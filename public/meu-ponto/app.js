@@ -616,6 +616,8 @@ function init(){
  $("logoutBtn").addEventListener("click",logout);
  $("prevMonth").addEventListener("click",()=>shiftMonth(-1));
  $("nextMonth").addEventListener("click",()=>shiftMonth(1));
+ $("payPrevMonth").addEventListener("click",()=>shiftMonth(-1));
+ $("payNextMonth").addEventListener("click",()=>shiftMonth(1));
  $("punchBtn").addEventListener("click",punch);
  $("editTodayBtn").addEventListener("click",()=>editDay(activeDay()));
  $("editDate").value=today();
