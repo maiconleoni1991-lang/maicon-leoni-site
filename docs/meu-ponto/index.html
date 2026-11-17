@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#142b4c">
+<meta name="description" content="Meu Ponto: jornadas, espelho mensal e sincronização segura.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>Meu Ponto — Jornada pessoal</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-synthesis:none;color:#172d4c;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:#122a4d;color:white;padding:18px max(18px,calc((100vw - 1120px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-weight:800;font-size:1.23rem;letter-spacing:.1px}.logo small{display:block;font-size:.74rem;opacity:.73;letter-spacing:.7px}
+header button{background:#29456e;color:white;border:1px solid #6d8bb1;border-radius:11px;padding:10px 12px}
+main{max-width:1144px;margin:auto;padding:22px 16px 70px}
+h1{font-size:1.55rem;letter-spacing:-.04em;margin:4px 0 6px}h2{font-size:1.08rem;margin:0 0 14px}
+.muted{color:#64758b;font-size:.89rem;line-height:1.5}.hidden{display:none!important}
+.panel{background:#fff;border:1px solid #e1e8f2;border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 2px 12px rgba(11,32,60,.035)}
+.auth{max-width:450px;margin:35px auto}label{font-size:.86rem;font-weight:650;display:block;margin-bottom:6px}
+input,select,textarea{background:white;color:#152e50;border:1px solid #cbd6e5;border-radius:10px;padding:11px;width:100%;outline-color:#2869d6}
+input[type=datetime-local]{min-width:0}
+input:focus,textarea:focus,select:focus{border-color:#2869d6}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+.btn{background:#2365d5;color:white;border:1px solid #2365d5;border-radius:10px;padding:10px 14px;font-weight:690}
+.btn.secondary{background:#fff;color:#244877;border-color:#ccd7e5}.btn.ghost{background:transparent;border-color:#bdcce0;color:#264668}
+.btn:disabled{opacity:.5;cursor:default}.btn.small{padding:8px 10px;font-size:.85rem}
+a{color:#145dcb}.top{display:flex;justify-content:space-between;align-items:start;gap:20px;flex-wrap:wrap}
+.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0 18px}
+.stat{background:#fff;border:1px solid #e1e8f2;border-radius:14px;padding:14px}
+.stat strong{display:block;font-size:1.4rem;margin-top:6px;letter-spacing:-.025em}.stat span{color:#60748e;font-size:.78rem}
+.notice{border-left:3px solid #e5a53b;background:#fffaf1;padding:10px 13px;font-size:.87rem;color:#76511f;border-radius:5px;line-height:1.5}
+.status{font-size:.82rem;font-weight:650;padding:5px 9px;border-radius:9px;background:#eaf1ff;color:#29599c}
+.status.good{color:#24724d;background:#e6f7ed}.status.warn{color:#805c13;background:#fff4db}
+.month-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.month-controls strong{font-size:1.05rem;min-width:180px;text-transform:capitalize}
+.scroller{overflow:auto;border:1px solid #e3eaf3;border-radius:11px}
+table{width:100%;border-collapse:collapse;min-width:960px;text-align:left}
+th{position:sticky;top:0;background:#edf3fc;font-size:.77rem;color:#4c6586;text-transform:uppercase;letter-spacing:.02em}
+td,th{padding:12px 10px;border-bottom:1px solid #e7edf5;white-space:nowrap}
+tbody tr{cursor:pointer}tbody tr:hover{background:#f5f9ff}td{font-size:.88rem}td small{display:block;color:#64748b;font-size:.74rem}
+.tag{display:inline-block;background:#fff4de;color:#88611d;padding:4px 7px;border-radius:7px;font-size:.77rem}
+.tag.ok{color:#17764f;background:#e6f7ee}
+.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.quick-grid div{border:1px solid #e2e9f2;border-radius:12px;padding:10px}.quick-grid small{color:#64758b;display:block}.quick-grid strong{display:block;margin-top:7px;font-size:1.1rem}
+dialog{border:0;border-radius:18px;padding:0;max-width:min(95vw,590px);width:100%;box-shadow:0 18px 75px #0c244651}
+dialog::backdrop{background:#0b1e36a9}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0}
+dialog form{padding:16px 20px 20px}.help{font-size:.8rem;color:#677990;line-height:1.5;margin-top:6px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#142b4c;color:white;padding:11px 16px;border-radius:12px;box-shadow:0 8px 35px #182b4a40;max-width:90vw;z-index:9;font-size:.87rem}
+footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
+@media(max-width:720px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:16px 12px 60px}.panel{padding:14px}.form-grid{grid-template-columns:1fr}header{padding:13px 16px}.quick-grid{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:no-preference){button{transition:transform .1s}button:active{transform:scale(.98)}}
+</style>
+<script defer src="./app.js"></script>
+</head>
+<body>
+<header>
+ <div class="logo">◉ MEU PONTO <small>JORNADA PESSOAL</small></div>
+ <div style="display:flex;gap:8px">
+   <button id="installBtn" hidden>Instalar</button>
+   <button id="logoutBtn" class="hidden">Sair</button>
+ </div>
+</header>
+<main>
+<section id="authPanel" class="panel auth">
+ <h1>Seus registros, sempre com você</h1>
+ <p class="muted">Entre com sua conta para guardar e recuperar as marcações na nuvem. A página pode ser instalada no celular, como um aplicativo.</p>
+ <form id="authForm">
+  <div style="margin-bottom:14px"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" placeholder="seuemail@exemplo.com" required></div>
+  <div><label for="password">Senha</label><input id="password" type="password" minlength="8" autocomplete="current-password" placeholder="Mínimo de 8 caracteres" required></div>
+  <div class="actions"><button class="btn" id="loginBtn" type="submit">Entrar</button><button class="btn secondary" id="signupBtn" type="button">Criar minha conta</button></div>
+  <p id="authInfo" class="muted" role="status"></p>
+ </form>
+</section>
+<section id="appPanel" class="hidden">
+ <div class="top">
+  <div><h1>Espelho de ponto</h1><p class="muted" id="accountLabel">Seu histórico particular</p></div>
+  <span id="syncStatus" class="status">Verificando sincronização…</span>
+ </div>
+ <div class="stat-grid">
+  <div class="stat"><span>Horas confirmadas no mês</span><strong id="workedTotal">—</strong></div>
+  <div class="stat"><span>Horas extras 60%</span><strong id="extra60Total">—</strong></div>
+  <div class="stat"><span>Horas extras 100%</span><strong id="extra100Total">—</strong></div>
+  <div class="stat"><span>Dias com pendências</span><strong id="incompleteTotal">—</strong></div>
+ </div>
+ <section class="panel">
+  <div class="toolbar">
+   <div><h2>Registrar jornada</h2><p class="muted" id="quickDay">Data da jornada: —</p></div>
+   <div class="actions" style="margin:0"><button class="btn" id="punchBtn">Registrar batida agora</button><button class="btn secondary" id="editTodayBtn">Editar jornada</button></div>
+  </div>
+  <div id="quickMarks" class="quick-grid"></div>
+ </section>
+ <section class="panel">
+  <div class="toolbar">
+   <h2>Folha mensal</h2>
+   <div class="month-controls"><button class="btn small secondary" id="prevMonth">‹ Anterior</button><strong id="monthTitle">—</strong><button class="btn small secondary" id="nextMonth">Próximo ›</button></div>
+  </div>
+  <p class="muted">Toque em uma linha para preencher horários em branco. Saídas após 00h aparecem como <b>+1 dia</b>, mas pertencem à jornada anterior.</p>
+  <div class="scroller"><table>
+   <thead><tr><th>Data</th><th>Entrada</th><th>Almoço/Intervalo</th><th>Retorno</th><th>Saída</th><th>Trabalhadas</th><th>HE 60%</th><th>HE 100%</th><th>Status</th></tr></thead>
+   <tbody id="monthRows"></tbody>
+  </table></div>
+  <p class="muted" id="monthNote"></p>
+ </section>
+ <section class="panel">
+  <h2>Segurança e recuperação</h2>
+  <p class="muted">Os horários ficam na sua conta online. Batidas feitas sem conexão são guardadas localmente e sincronizadas quando a internet voltar. Em caso de conflito entre aparelhos, confira antes de substituir dados.</p>
+  <div class="actions">
+   <button class="btn secondary" id="importBtn">Importar backup antigo</button>
+   <button class="btn secondary" id="exportBtn">Baixar backup de segurança</button>
+   <button class="btn secondary" id="syncBtn">Sincronizar agora</button>
+   <input id="backupFile" type="file" accept=".txt,text/plain" hidden>
+  </div>
+  <p class="notice">Na primeira utilização, importe uma única vez o backup do aplicativo antigo. Depois, as atualizações desta página não exigem exportar e importar novamente. Não desinstale o app antigo até conferir seu histórico online.</p>
+ </section>
+</section>
+<footer>Meu Ponto • Conta particular • Horas extras e adicional noturno são estimativas para conferência, não substituem o ponto da empresa.</footer>
+</main>
+<dialog id="editDialog">
+ <div class="modal-head"><h2 id="dialogTitle">Jornada</h2><button class="btn small secondary" id="closeDialog" type="button">Fechar</button></div>
+ <form id="dayForm">
+  <div class="form-grid">
+   <div><label for="workDay">Data</label><input id="workDay" type="date" required></div>
+   <div><label for="shift">Turno</label><select id="shift"><option value="1">1º turno — saída 16:00</option><option value="2">2º turno — saída 23:04</option></select></div>
+   <div><label for="entryAt">Entrada</label><input id="entryAt" type="datetime-local"></div>
+   <div><label for="breakOut">Saída para intervalo</label><input id="breakOut" type="datetime-local"></div>
+   <div><label for="breakIn">Retorno do intervalo</label><input id="breakIn" type="datetime-local"></div>
+   <div><label for="exitAt">Saída final</label><input id="exitAt" type="datetime-local"></div>
+  </div>
+  <div class="help">Exemplo: jornada de 14/11 com saída à 00:27 → saída final em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
+  <div style="margin-top:13px"><label for="note">Observações</label><textarea id="note" rows="3" maxlength="2000" placeholder="Ex.: hora extra, treinamento, papel com horário real"></textarea></div>
+  <div style="margin-top:13px"><label><input id="holiday" type="checkbox" style="width:auto"> Feriado</label></div>
+  <div class="actions"><button class="btn" type="submit">Salvar jornada</button><button class="btn secondary" id="cancelEdit" type="button">Cancelar</button></div>
+ </form>
+</dialog>
+<div id="toast" class="hidden" role="status"></div>
+</body>
+</html>
