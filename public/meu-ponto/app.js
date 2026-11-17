@@ -422,7 +422,7 @@ function render(){
   else incomplete++;
   const tr=document.createElement("tr"),cell=t=>{const td=document.createElement("td");td.textContent=t;tr.append(td);};
   const date=new Date(r.work_day+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short"});
-  cell(fmtDate(r.work_day)+" "+date+(holidayOn(r.work_day,r)?" · FERIADO":isSun(r.work_day)?" · DOM":""));
+  cell(fmtDate(r.work_day)+" "+date+(effectiveHoliday(r.work_day,r)?" · FERIADO":isSun(r.work_day)?" · DOM":""));
   SLOTS.forEach(k=>cell(displayTime(r[k],r.work_day)));
   cell(sum.valid?formatMin(sum.partial):sum.partial?formatMin(sum.partial)+" a conferir":"—");
   cell(r.exit_at?formatMin(sum.afterEnd):"—");
@@ -538,7 +538,7 @@ function buildMonthPdfData(period=month){
   }
   const status=!filled?"Sem registro":sum.valid?"Completo":"Incompleto";
   const parts=[];
-  if(holidayOn(r.work_day,r)){
+  if(effectiveHoliday(r.work_day,r)){
    parts.push("Feriado: "+(holidayName(r.work_day)||"definido manualmente"));
   }else if(isSun(r.work_day)){
    parts.push("Domingo");
