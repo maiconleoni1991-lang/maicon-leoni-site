@@ -145,6 +145,17 @@ dialog h2{color:var(--gold-light)}
 .pdf-preview iframe{width:100%;height:min(72vh,780px);min-height:420px;background:#fff;border:1px solid #6b7d94;border-radius:10px}
 .pdf-preview h3{color:#e9d1a1;font-size:1rem}
 @media(max-width:720px){.pdf-preview iframe{min-height:350px;height:63vh}.pdf-preview{padding:9px}}
+
+.pdf-multi-panel{border-color:#c9ab6970;margin:16px 0;padding:16px}
+.pdf-multi-panel summary{font-weight:750;font-size:.95rem;cursor:pointer;color:#f0d694}
+.pdf-month-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.pdf-month-choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:9px}
+.pdf-month-choice{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #425a79;background:#112840;border-radius:10px;cursor:pointer;margin:0}
+.pdf-month-choice input{width:19px;height:19px;min-width:19px;accent-color:#d5b46e;margin:0}
+.pdf-month-choice span{color:#eaf1fd;font-size:.87rem;font-weight:650}
+#pdfSelectionSummary{margin:10px 0 0}
+@media(max-width:560px){.pdf-month-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.pdf-month-choice{padding:10px 7px;gap:6px}}
+
 </style>
 <script defer src="./app.js"></script>
 <script defer src="./payroll.js"></script>
@@ -231,6 +242,20 @@ dialog h2{color:var(--gold-light)}
    <tbody id="monthRows"></tbody>
   </table></div>
   <p class="muted" id="monthNote"></p>
+  <details id="multiPdfPanel" class="pdf-multi-panel">
+   <summary>Baixar ou visualizar vários meses no mesmo PDF</summary>
+   <p class="help">Escolha as competências. Cada mês terá todos os seus dias, inclusive sem registro ou com batidas incompletas. Os meses escolhidos ficarão em sequência no mesmo arquivo.</p>
+   <div class="pdf-month-toolbar">
+    <button class="btn small secondary" id="selectAllPdfMonths" type="button">Selecionar todos</button>
+    <button class="btn small secondary" id="clearPdfMonths" type="button">Limpar seleção</button>
+   </div>
+   <div id="pdfMonthsChoices" class="pdf-month-choices" aria-label="Selecionar meses do espelho"></div>
+   <p class="muted" id="pdfSelectionSummary" aria-live="polite">Selecione pelo menos um mês.</p>
+   <div class="actions">
+    <button class="btn" type="button" id="downloadMultiPdfBtn">Baixar meses selecionados</button>
+    <button class="btn secondary" type="button" id="previewMultiPdfBtn">Visualizar meses selecionados</button>
+   </div>
+  </details>
   <div id="pdfDownloadResult" aria-live="polite"></div>
   <div id="pdfPreviewBox" class="hidden pdf-preview">
    <div class="toolbar" style="margin-bottom:12px"><h3 style="margin:0">Visualização do espelho em PDF</h3>
@@ -239,7 +264,7 @@ dialog h2{color:var(--gold-light)}
    <iframe id="pdfPreviewFrame" title="Visualização do espelho mensal em PDF" loading="lazy"></iframe>
    <p class="help">Se seu navegador não conseguir exibir a prévia, toque em “Abrir PDF em outra guia” ou use “Baixar PDF”.</p>
   </div>
-  <p class="help">O PDF é criado diretamente no seu aparelho com os horários reais do mês selecionado, inclusive batidas após meia-noite. Não é necessário usar a impressão.</p>
+  <p class="help">O PDF é criado diretamente no seu aparelho com os horários reais dos meses selecionados, inclusive batidas após meia-noite e dias sem registro. Não é necessário usar a impressão.</p>
  </section>
  </div>
  <div data-area="holerite" class="workspaceArea hidden">
