@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#142b4c">
+<meta name="theme-color" content="#0b1b2f">
 <meta name="description" content="Meu Ponto: jornadas, espelho mensal e sincronização segura.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="./manifest.webmanifest">
@@ -55,12 +55,75 @@ dialog form{padding:16px 20px 20px}.help{font-size:.8rem;color:#677990;line-heig
 footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
 @media(max-width:720px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:16px 12px 60px}.panel{padding:14px}.form-grid{grid-template-columns:1fr}header{padding:13px 16px}.quick-grid{grid-template-columns:repeat(2,1fr)}}
 @media(prefers-reduced-motion:no-preference){button{transition:transform .1s}button:active{transform:scale(.98)}}
+
+/* Meu Ponto Premium V3 — azul-marinho, dourado e cartões em módulos */
+:root{color-scheme:dark;--navy:#081827;--navy2:#101f34;--navy3:#192d48;--gold:#d5b46e;--gold-light:#f0d495;--soft:#b4c4da;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#edf3ff;background:var(--navy)}
+body{background:radial-gradient(ellipse at 85% -12%,#223c61 0%,transparent 40%),linear-gradient(175deg,#0c1c31,#071423 85%);color:#edf3ff;min-height:100vh}
+header{background:linear-gradient(125deg,#101e32,#0c192b);border-bottom:1px solid #30415c;padding:16px max(18px,calc((100vw - 1120px)/2));box-shadow:0 12px 30px #0002}
+.logo{color:var(--gold-light);font-size:1.27rem;letter-spacing:.035em}.logo small{color:#b9c9dc;font-weight:550;margin-top:3px}
+header button{background:#142640;border:1px solid #52658a;border-radius:12px;color:#dbe7fa}
+main{padding-top:25px}
+h1,h2{color:#fff;letter-spacing:-.025em}h1{font-size:1.75rem}h2{font-size:1.15rem}
+.muted,.help,footer{color:#b1c0d5}
+.panel,.stat,.quick-grid div{background:linear-gradient(155deg,#192b44,#101e32);border:1px solid #304159;box-shadow:0 10px 26px #00000020}
+.panel{border-radius:20px;padding:22px}.stat{border-radius:16px;padding:17px}.stat strong{color:var(--gold-light);font-weight:800}.stat span,.quick-grid small{color:#afc0d5}
+.quick-grid div{border-radius:12px}.quick-grid strong{color:#fff}
+.btn{background:linear-gradient(110deg,#e2c178,#cda054);border:1px solid #c89c4c;color:#182332;border-radius:12px;box-shadow:0 5px 16px #b9974d22}
+.btn.secondary{background:#1b2e4b;color:#e8f0ff;border-color:#445b7e;box-shadow:none}.btn.ghost{color:#f1d394;border-color:#788061;background:transparent}
+.btn:hover{filter:brightness(1.10)}
+input,select,textarea{background:#0e1d31;color:#f2f5fc;border:1px solid #51627c;border-radius:11px}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:2px solid #bd955655}
+label{color:#d1dded;font-weight:650}
+input[type=checkbox]{accent-color:#ceac66}
+a{color:#f4d796}.notice{color:#ffe0a7;background:#42351f55;border-left-color:var(--gold)}
+.status{background:#233d5e;color:#c5ddff;border:1px solid #506681}
+.status.good{background:#123e35;color:#9ae0bd;border-color:#386f5d}.status.warn{background:#493a26;color:#f0cb85;border-color:#6a573b}
+.scroller{border-color:#3d506c;border-radius:14px}
+table{color:#e5effc}th{background:#213958;color:#e6d39f}td,th{border-bottom-color:#354967}
+tbody tr:hover{background:#294060}
+tbody tr:nth-child(even){background:#14253b}
+.tag{background:#59451d;color:#f4d391}.tag.ok{background:#183a36;color:#90e0bf}
+.month-controls strong{color:var(--gold-light)}
+details{border:1px solid #34465e;border-radius:13px;padding:13px 15px;margin-top:13px}
+summary{color:#edd2a1}
+dialog{color:#f1f5ff;background:#11243b;border:1px solid #54688b}
+dialog h2{color:var(--gold-light)}
+#toast{background:#243754;color:#fff;border:1px solid #90754a}
+.premium-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:8px;margin:16px 0 24px;background:#0d1a2c;border:1px solid #2d435f;border-radius:18px}
+.premium-nav button{background:transparent;color:#b7c7dc;border:1px solid transparent;border-radius:12px;padding:12px 6px;font-weight:740;font-size:.88rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.premium-nav button .glyph{font-size:1.18rem}
+.premium-nav button.active{background:linear-gradient(130deg,#c7a35c,#edcc8d);color:#17243b;box-shadow:0 5px 12px #0002}
+.workspaceArea{animation:areaIn .18s ease-out}
+@keyframes areaIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.top{padding:0 4px}.top h1{font-size:2rem;margin:0}.top .muted{margin-top:5px}
+.pay-hero{background:linear-gradient(130deg,#253f5b,#18283f);border:1px solid #b3965b80;border-radius:18px;padding:22px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.pay-hero small{color:#cedbf0}.pay-hero strong{display:block;color:#ffe4a9;font-size:2rem;margin-top:6px}
+.pay-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.pay-summary div{border:1px solid #43506a;border-radius:13px;background:#102038;padding:13px}
+.pay-summary span{display:block;color:#b4c6de;font-size:.78rem}.pay-summary strong{display:block;margin-top:5px;color:#e4f0ff;font-size:1.2rem}
+.pay-summary .gold strong{color:#efcf87}.pay-layout{display:grid;grid-template-columns:1fr;gap:14px}
+.pay-tbl{min-width:700px}.pay-credit td:nth-child(4){color:#a7ebbd}.pay-debit td:nth-child(5){color:#f0bdad}
+.premium-title{display:flex;align-items:center;gap:10px;color:var(--gold-light)}
+.premium-title .symbol{display:flex;justify-content:center;align-items:center;background:#b99b5e2e;border:1px solid #bd9a5b76;border-radius:12px;width:40px;height:40px}
+@media(max-width:720px){
+ main{padding:14px 12px 110px}.panel{padding:16px}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}header{padding:14px}
+ .premium-nav{position:fixed;bottom:0;left:0;right:0;z-index:5;border-radius:15px 15px 0 0;margin:0;padding:6px 8px calc(7px + env(safe-area-inset-bottom));background:#0d1b2ef5;border:1px solid #455978;box-shadow:0 -7px 30px #0008;gap:3px}
+ .premium-nav button{font-size:.66rem;flex-direction:column;gap:3px;padding:8px 2px}
+ .premium-nav button .glyph{font-size:1.3rem}
+ .pay-hero strong{font-size:1.75rem}
+ .pay-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .top h1{font-size:1.55rem}
+}
+@media(max-width:430px){.form-grid{grid-template-columns:1fr}.pay-hero{padding:16px}.pay-summary strong{font-size:1.06rem}}
+
 </style>
 <script defer src="./app.js"></script>
+<script defer src="./payroll.js"></script>
 </head>
 <body>
 <header>
- <div class="logo">◉ MEU PONTO <small>JORNADA PESSOAL</small></div>
+ <div class="logo">◉ MEU PONTO <small>PREMIUM · JORNADA PESSOAL</small></div>
  <div style="display:flex;gap:8px">
    <button id="installBtn" hidden>Instalar</button>
    <button id="logoutBtn" class="hidden">Sair</button>
@@ -79,9 +142,16 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
 </section>
 <section id="appPanel" class="hidden">
  <div class="top">
-  <div><h1>Espelho de ponto</h1><p class="muted" id="accountLabel">Seu histórico particular</p></div>
+  <div><h1>Controle de jornada</h1><p class="muted" id="accountLabel">Seu histórico particular</p></div>
   <span id="syncStatus" class="status">Verificando sincronização…</span>
  </div>
+ <nav class="premium-nav" aria-label="Áreas do Meu Ponto" role="tablist">
+  <button type="button" class="active" data-area-target="ponto" aria-selected="true"><span class="glyph">◷</span><span>Meu ponto</span></button>
+  <button type="button" data-area-target="espelho" aria-selected="false"><span class="glyph">▦</span><span>Espelho</span></button>
+  <button type="button" data-area-target="holerite" aria-selected="false"><span class="glyph">▤</span><span>Holerite</span></button>
+  <button type="button" data-area-target="ajustes" aria-selected="false"><span class="glyph">⚙</span><span>Ajustes</span></button>
+ </nav>
+ <div data-area="ponto" class="workspaceArea">
  <div class="stat-grid">
   <div class="stat"><span>Horas confirmadas no mês</span><strong id="workedTotal">—</strong></div>
   <div class="stat"><span>Horas extras 60%</span><strong id="extra60Total">—</strong></div>
@@ -95,6 +165,8 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
   </div>
   <div id="quickMarks" class="quick-grid"></div>
  </section>
+ </div>
+ <div data-area="espelho" class="workspaceArea hidden">
  <section class="panel">
   <div class="toolbar">
    <div><h2>Folha mensal</h2><button type="button" class="btn small" id="printMonthBtn">Gerar PDF / imprimir</button></div>
@@ -112,6 +184,8 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
   </table></div>
   <p class="muted" id="monthNote"></p><p class="help">Para guardar o espelho do mês, toque em <b>Gerar PDF / imprimir</b> e escolha <b>Salvar como PDF</b> no destino de impressão do celular. Também pode imprimir em A4 na horizontal.</p>
  </section>
+ </div>
+ <div data-area="holerite" class="workspaceArea hidden">
  <section class="panel" id="financePanel">
   <h2>Prévia de holerite e adicionais</h2>
   <p class="muted">Conferência aproximada do mês selecionado. Jornada noturna urbana: 22h–05h; hora reduzida de 52min30s. Feriados e domingos podem gerar 100%, salvo compensação. Os valores não substituem seu holerite.</p>
@@ -140,6 +214,44 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
   </details>
   <p class="help">O DSR é uma estimativa sobre horas extras e adicional noturno, conforme dias úteis, domingos e feriados. Outros reflexos (férias, 13º, FGTS e demais verbas) dependem da habitualidade, da legislação e da convenção coletiva; não estão somados aqui.</p>
  </section>
+ <section class="panel" id="payslipPanel">
+  <div class="toolbar">
+   <div class="premium-title"><span class="symbol">▤</span><div><h2 style="margin:0">Demonstrativo de pagamento</h2><p class="muted" style="margin:4px 0 0">Simulação contábil · Proventos e descontos</p></div></div>
+   <div class="month-controls">
+    <button class="btn small secondary" id="payPrevMonth" type="button">‹</button>
+    <strong id="payPeriod">Competência</strong>
+    <button class="btn small secondary" id="payNextMonth" type="button">›</button>
+   </div>
+  </div>
+  <div class="pay-hero"><div><small>Salário líquido estimado</small><strong id="payNet">—</strong><small>Conferência independente · não substitui o holerite da empresa</small></div><button id="payPdfBtn" class="btn" type="button">Gerar holerite PDF</button></div>
+  <div class="pay-summary">
+   <div><span>Total de vencimentos</span><strong id="payGross">—</strong></div>
+   <div><span>Descontos previstos</span><strong id="payDiscounts">—</strong></div>
+   <div><span>Base INSS</span><strong id="payBaseINSS">—</strong></div>
+   <div><span>Base IRRF</span><strong id="payBaseIRRF">—</strong></div>
+   <div class="gold" style="grid-column:span 2"><span>FGTS estimado — não é desconto do empregado</span><strong id="payFGTS">—</strong></div>
+  </div>
+  <h2 style="margin-top:24px">Rubricas da competência</h2>
+  <div class="scroller"><table class="pay-tbl"><thead><tr><th>Código</th><th>Descrição</th><th>Referência</th><th>Vencimentos</th><th>Descontos</th></tr></thead><tbody id="payslipEntries"></tbody></table></div>
+  <p id="payWarning" class="muted" style="margin-top:14px"></p>
+  <details>
+   <summary id="adjustPeriod">Ajustes da competência</summary>
+   <form id="payAdjustForm">
+    <div class="form-grid" style="margin-top:13px">
+     <div><label for="payBaseOverride">Salário-base do mês (opcional)</label><input id="payBaseOverride" type="number" step="0.01" min="0" placeholder="Automático pela admissão"></div>
+     <div><label for="payDependents">Dependentes para IRRF</label><input id="payDependents" type="number" min="0" max="20" step="1" value="0"></div>
+     <div><label for="payTransportCost">Valor de vale-transporte fornecido (R$)</label><input id="payTransportCost" type="number" min="0" step="0.01" value="0"></div>
+     <div><label for="payTransportEnabled"><input id="payTransportEnabled" type="checkbox" style="width:auto"> Aplicar vale-transporte (até 6% do salário-base)</label></div>
+     <div><label for="payAdvance">Adiantamento do mês (R$)</label><input id="payAdvance" type="number" min="0" step="0.01" value="0"></div>
+     <div><label for="payOtherDeductions">Outros descontos autorizados (R$)</label><input id="payOtherDeductions" type="number" min="0" step="0.01" value="0"></div>
+    </div>
+    <div class="actions"><button type="submit" class="btn" id="paySave">Salvar ajustes deste mês</button></div>
+   </form>
+  </details>
+  <p class="help">As tabelas automáticas são de 2026. Dependentes, vale-transporte, adiantamentos, plano de saúde, convênios e outras deduções dependem dos fatos reais. A conta não é documento oficial de pagamento nem cálculo rescisório.</p>
+ </section>
+ </div>
+ <div data-area="ajustes" class="workspaceArea hidden">
  <section class="panel">
   <h2>Segurança e recuperação</h2>
   <p class="muted">Os horários ficam na sua conta online. Batidas feitas sem conexão são guardadas localmente e sincronizadas quando a internet voltar. Em caso de conflito entre aparelhos, confira antes de substituir dados.</p>
@@ -151,6 +263,7 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
   </div>
   <p class="notice">Os registros já restaurados na nuvem não precisam ser importados novamente. Confira outubro e novembro, complete as batidas que faltam e verifique o status "Salvo na nuvem". Faça uma cópia em "Baixar backup de segurança" periodicamente. Não desinstale o app antigo antes de conferir os dados.</p>
  </section>
+ </div>
 </section>
 <footer>Meu Ponto • Conta particular • Horas extras e adicional noturno são estimativas para conferência, não substituem o ponto da empresa.</footer>
 </main>
