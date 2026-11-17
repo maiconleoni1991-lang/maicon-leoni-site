@@ -135,8 +135,9 @@ dialog h2{color:var(--gold-light)}
 @media(max-width:720px){
  .punch-heading-actions{justify-content:flex-start;gap:7px}
  .punch-heading-actions .status{font-size:.71rem}
- .punch-header-btn{min-width:130px;min-height:45px;padding:10px 12px;font-size:.91rem}
+ .punch-header-btn{position:fixed;right:14px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:6;min-width:162px;min-height:49px;padding:12px 16px;font-size:.94rem;border-radius:25px;box-shadow:0 8px 29px #0009}
  .punch-card-btn{width:100%;min-width:190px}
+ main{padding-bottom:calc(170px + env(safe-area-inset-bottom))}
 }
 
 </style>
