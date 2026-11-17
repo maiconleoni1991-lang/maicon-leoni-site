@@ -357,7 +357,7 @@ function render(){
   else incomplete++;
   const tr=document.createElement("tr"),cell=t=>{const td=document.createElement("td");td.textContent=t;tr.append(td);};
   const date=new Date(r.work_day+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short"});
-  cell(fmtDate(r.work_day)+" "+date);
+  cell(fmtDate(r.work_day)+" "+date+(holidayOn(r.work_day,r)?" · FERIADO":isSun(r.work_day)?" · DOM":""));
   SLOTS.forEach(k=>cell(displayTime(r[k],r.work_day)));
   cell(sum.valid?formatMin(sum.partial):sum.partial?formatMin(sum.partial)+" a conferir":"—");
   cell(r.exit_at?formatMin(sum.afterEnd):"—");
@@ -367,7 +367,7 @@ function render(){
   tag.className="tag"+(sum.valid?" ok":"");
   tag.textContent=sum.valid?"Completo":"Em aberto";
   td.append(tag);tr.append(td);
-  tr.title=r.note||"Abrir jornada";
+  tr.title=(holidayName(r.work_day)||"")+(r.note?" · "+r.note:"")+" · Abrir jornada";
   tr.addEventListener("click",()=>editDay(r.work_day));
   body.append(tr);
  });
@@ -453,6 +453,7 @@ function printMonth(){
  const [year,mo]=month.split("-").map(Number);
  const monthLabel=new Date(year,mo-1,1).toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase();
  const data=monthCalendar();
+ const fin=monthFinance(month);
  let confirmed=0,extra60=0,extra100=0,afterTotal=0,pending=0,registered=0;
  const body=data.map(r=>{
   const has=SLOTS.some(k=>!!r[k]),sum=summarize(r);
@@ -466,7 +467,11 @@ function printMonth(){
   if(plannedBreak!==null&&r.break_out_at&&r.break_in_at&&sum.breakMinutes>plannedBreak){
    problems.push("Intervalo acima da referência: "+sum.breakMinutes+" min (referência "+plannedBreak+" min); conferir se necessário");
   }
-  const messages=[r.note,...problems].filter(Boolean).join(" | ");
+  const cross=r.exit_at&&r.exit_at.slice(0,10)!==r.work_day;
+  const holidayHere=holidayOn(r.work_day,r)?holidayName(r.work_day)||"Feriado escolhido manualmente":null;
+  const afterDay=cross?r.exit_at.slice(0,10):null;
+  const holidayLater=afterDay&&premiumDay(afterDay,r)?(holidayName(afterDay)||"domingo/feriado"):"";
+  const messages=[holidayHere?"Feriado: "+holidayHere:"",holidayLater?"Virada para "+fmtDate(afterDay)+" ("+holidayLater+"): período após 00h com 100%":"",r.note,...problems].filter(Boolean).join(" | ");
   const status=!has?"Sem registro":sum.valid?"Completo":"Incompleto";
   const work=has&&sum.partial?formatMin(sum.partial)+(sum.valid?"":" **"):"";
   const record=[
@@ -512,6 +517,13 @@ function printMonth(){
   "<div><span>Extras 100%*</span><strong>"+formatMin(extra100)+"</strong></div>",
   "<div><span>Tempo após previsto*</span><strong>"+formatMin(afterTotal)+"</strong></div>",
   "<div><span>Jornadas incompletas</span><strong>"+pending+"</strong></div></div>",
+  "<div class='summary'><div><span>Adicional noturno ("+escHtml(paySettings.night_rate_pct)+"%)</span><strong>"+money(fin.nightValue)+"</strong></div>",
+  "<div><span>Hora noturna real / reduzida</span><strong>"+formatMin(Math.round(fin.nightClock*60))+" / "+formatMin(Math.round(fin.nightPaid*60))+"</strong></div>",
+  "<div><span>HE "+escHtml(paySettings.he60_pct)+"%</span><strong>"+money(fin.extra60)+"</strong></div>",
+  "<div><span>HE "+escHtml(paySettings.he100_pct)+"%</span><strong>"+money(fin.extra100)+"</strong></div>",
+  "<div><span>DSR sobre adicionais (estimado)</span><strong>"+money(fin.dsrHE+fin.dsrNight)+"</strong></div>",
+  "<div><span>Total acréscimos previstos</span><strong>"+money(fin.additional)+"</strong></div></div>",
+  "<div class='foot'>Salário-base de referência: "+money(paySettings.monthly_salary)+" • divisor "+escHtml(paySettings.hour_divisor)+" • salário-hora "+money(fin.rate)+". O total acima representa somente acréscimos BRUTOS e não inclui salário-base, descontos, impostos, FGTS ou outras verbas. Cálculo de DSR: "+fin.rests+" descansos ÷ "+fin.useful+" dias úteis sobre valores de extras e adicional noturno. Ajustar conforme a convenção coletiva, banco de horas e folgas compensatórias. Outubro inicia em 22/10 e requer proporcionalidade de salário. Horas em 22h–05h usam 52min30s por hora. A base da hora extra noturna inclui adicional noturno.</div>",
   "<div class='foot'>* Após fim previsto é a diferença entre a saída registrada e o fim programado (1º turno: 16h de segunda a sexta e 11h sábado; 2º turno: 23h04 de segunda a sexta e 18h30 sábado). Pode conter jornada incompleta e não equivale automaticamente a hora extra remunerada. Extras 60%/100% são estimativas somente de jornadas completas. Domingos e feriados marcados entram como 100%.<br>",
   "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Os horários no espelho são as batidas reais, sem preenchimento automático de intervalos. Intervalos de referência: segunda a quinta 60 min, sexta 30 min, sábado 15 min. Retornos antes da referência não geram pendência. Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
   "<div class='sign'><span>Conferência do colaborador</span><span>Conferência / observações</span></div>",
