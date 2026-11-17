@@ -312,14 +312,21 @@ function parseBackup(content){
   if(SLOTS.some(k=>r[k]&&Number.isNaN(ms(r[k])))){invalid.push(day);continue;}
   result.push(r);
  }
- // O usuário confirmou que 15/11 às 00h27 encerra a jornada iniciada em 14/11 às 19h04.
- const a=result.find(r=>r.work_day==="2026-11-14");
- const b=result.find(r=>r.work_day==="2026-11-15");
- if(a&&b&&a.entry_at==="2026-11-14T19:04"&&!a.exit_at&&
-    b.entry_at==="2026-11-15T00:27"&&
-    !b.break_out_at&&!b.break_in_at&&!b.exit_at){
-   a.exit_at=b.entry_at;
-   result.splice(result.indexOf(b),1);
+ // Se o backup antigo separou a saída após meia-noite em outro dia,
+ // confirme a associação antes de alterar os dados importados.
+ for(let i=0;i<result.length-1;i++){
+  const a=result[i],b=result[i+1];
+  if(!a.entry_at||a.exit_at||!b.entry_at||b.break_out_at||b.break_in_at||b.exit_at)continue;
+  const next=new Date(a.work_day+"T12:00:00");
+  next.setDate(next.getDate()+1);
+  const adjacent=next.getFullYear()+"-"+pad(next.getMonth()+1)+"-"+pad(next.getDate());
+  const plausible=b.work_day===adjacent&&Number(b.entry_at.slice(11,13))<6&&
+    minutes(a.entry_at,b.entry_at)>0&&minutes(a.entry_at,b.entry_at)<=18*60;
+  if(!plausible)continue;
+  if(window.confirm("Encontrei uma batida isolada em "+fmtDate(b.work_day)+" às "+b.entry_at.slice(11,16)+
+      ". Ela é a saída final da jornada iniciada em "+fmtDate(a.work_day)+"?")){
+    a.exit_at=b.entry_at;result.splice(i+1,1);i--;
+  }
  }
  return {result,invalid};
 }
