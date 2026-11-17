@@ -258,14 +258,14 @@ function render(){
  $("extra60Total").textContent=formatMin(e60);
  $("extra100Total").textContent=formatMin(e100);
  $("incompleteTotal").textContent=incomplete;
- $("monthNote").textContent=monthRows.length+" jornada(s) · totais de horas e extras somente para jornadas com as quatro batidas. Após previsto: tempo entre fim programado e saída, apenas referência, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos: seg–qui 60 min, sexta 30 min, sábado 15 min.";
+ $("monthNote").textContent=monthRows.length+" jornada(s) · todas as batidas exibidas são os horários reais. Totais de horas e extras somente para jornadas completas. Após previsto: tempo entre fim programado e saída, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos de referência: seg–qui 60 min, sexta 30 min, sábado 15 min; retornar antes não é pendência.";
 }
 function editDay(day){
  const r=rows[day]||blank(day);
  $("dialogTitle").textContent="Jornada de "+fmtDate(day);
  $("workDay").value=day;$("shift").value=r.shift;
  const plannedBreak=expectedBreak(day);
- $("expectedBreakInfo").textContent=plannedBreak===null?"Domingo: intervalo a conferir conforme a jornada.":"Intervalo previsto neste dia: "+plannedBreak+" minutos. Registre os horários reais de saída e retorno.";
+ $("expectedBreakInfo").textContent=plannedBreak===null?"Domingo: registre o intervalo real, se houver.":"Intervalo de referência: "+plannedBreak+" minutos. Se voltar alguns minutos antes, o registro será aceito. O espelho mostrará a hora exata de cada batida.";
  $("entryAt").value=r.entry_at;$("breakOut").value=r.break_out_at;
  $("breakIn").value=r.break_in_at;$("exitAt").value=r.exit_at;
  $("note").value=r.note||"";$("holiday").checked=!!r.holiday;
@@ -292,10 +292,11 @@ function submitDay(ev){
  $("editDialog").close();saveRow(r);
 }
 function punch(){
+ const pressedAt=nowLocal(); // horário capturado assim que o usuário toca em Registrar
  const r=currentRecord(),slot=SLOTS.findIndex(k=>!r[k]);
  if(slot<0)return;
- if(!window.confirm("Registrar "+LABELS[slot].toLowerCase()+" às "+nowLocal().slice(11,16)+" na jornada de "+fmtDate(r.work_day)+"?"))return;
- r[SLOTS[slot]]=nowLocal();
+ if(!window.confirm("Registrar "+LABELS[slot].toLowerCase()+" às "+pressedAt.slice(11,16)+" na jornada de "+fmtDate(r.work_day)+"?"))return;
+ r[SLOTS[slot]]=pressedAt;
  saveRow(r);
 }
 function shiftMonth(delta){
@@ -336,8 +337,8 @@ function printMonth(){
   const rest=missingFields(r),problems=[];
   if(has&&rest.length)problems.push("Faltam: "+rest.join(", "));
   const plannedBreak=expectedBreak(r.work_day);
-  if(plannedBreak!==null&&r.break_out_at&&r.break_in_at&&sum.breakMinutes!==plannedBreak){
-   problems.push("Intervalo: "+sum.breakMinutes+" min (previsto "+plannedBreak+" min)");
+  if(plannedBreak!==null&&r.break_out_at&&r.break_in_at&&sum.breakMinutes>plannedBreak){
+   problems.push("Intervalo acima da referência: "+sum.breakMinutes+" min (referência "+plannedBreak+" min); conferir se necessário");
   }
   const messages=[r.note,...problems].filter(Boolean).join(" | ");
   const status=!has?"Sem registro":sum.valid?"Completo":"Incompleto";
@@ -386,7 +387,7 @@ function printMonth(){
   "<div><span>Tempo após previsto*</span><strong>"+formatMin(afterTotal)+"</strong></div>",
   "<div><span>Jornadas incompletas</span><strong>"+pending+"</strong></div></div>",
   "<div class='foot'>* Após fim previsto é a diferença entre a saída registrada e o fim programado (1º turno: 16h de segunda a sexta e 11h sábado; 2º turno: 23h04 de segunda a sexta e 18h30 sábado). Pode conter jornada incompleta e não equivale automaticamente a hora extra remunerada. Extras 60%/100% são estimativas somente de jornadas completas. Domingos e feriados marcados entram como 100%.<br>",
-  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Intervalos não são preenchidos automaticamente. Intervalo previsto: segunda a quinta 60 min, sexta-feira 30 min, sábado 15 min (nos horários reais registrados pelo usuário). Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
+  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Os horários no espelho são as batidas reais, sem preenchimento automático de intervalos. Intervalos de referência: segunda a quinta 60 min, sexta 30 min, sábado 15 min. Retornos antes da referência não geram pendência. Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
   "<div class='sign'><span>Conferência do colaborador</span><span>Conferência / observações</span></div>",
   "</body></html>"
  ].join("");
