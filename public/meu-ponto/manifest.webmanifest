@@ -1,0 +1,19 @@
+{
+  "name": "Meu Ponto — Jornada Pessoal",
+  "short_name": "Meu Ponto",
+  "description": "Espelho mensal de ponto com sincronização privada",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#142b4c",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
