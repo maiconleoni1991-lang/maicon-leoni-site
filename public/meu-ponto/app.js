@@ -21,6 +21,13 @@ const formatMin=n=>Math.floor(n/60)+"h"+pad(n%60);
 const fmtDate=day=>{const [y,m,d]=day.split("-");return d+"/"+m+"/"+y;};
 const isSun=day=>new Date(day+"T12:00:00").getDay()===0;
 const isSat=day=>new Date(day+"T12:00:00").getDay()===6;
+const expectedBreak=day=>{
+ const weekday=new Date(day+"T12:00:00").getDay();
+ if(weekday===0)return null;
+ if(weekday===6)return 15;
+ if(weekday===5)return 30;
+ return 60;
+};
 const shiftEnd=r=>{
  const [y,m,d]=r.work_day.split("-").map(Number);
  const hour=r.shift===1?(isSat(r.work_day)?11:16):(isSat(r.work_day)?18:23);
@@ -251,12 +258,14 @@ function render(){
  $("extra60Total").textContent=formatMin(e60);
  $("extra100Total").textContent=formatMin(e100);
  $("incompleteTotal").textContent=incomplete;
- $("monthNote").textContent=monthRows.length+" jornada(s) · totais de horas e extras somente para jornadas com as quatro batidas. Após previsto: tempo entre fim programado e saída, apenas referência, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30.";
+ $("monthNote").textContent=monthRows.length+" jornada(s) · totais de horas e extras somente para jornadas com as quatro batidas. Após previsto: tempo entre fim programado e saída, apenas referência, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos: seg–qui 60 min, sexta 30 min, sábado 15 min.";
 }
 function editDay(day){
  const r=rows[day]||blank(day);
  $("dialogTitle").textContent="Jornada de "+fmtDate(day);
  $("workDay").value=day;$("shift").value=r.shift;
+ const plannedBreak=expectedBreak(day);
+ $("expectedBreakInfo").textContent=plannedBreak===null?"Domingo: intervalo a conferir conforme a jornada.":"Intervalo previsto neste dia: "+plannedBreak+" minutos. Registre os horários reais de saída e retorno.";
  $("entryAt").value=r.entry_at;$("breakOut").value=r.break_out_at;
  $("breakIn").value=r.break_in_at;$("exitAt").value=r.exit_at;
  $("note").value=r.note||"";$("holiday").checked=!!r.holiday;
@@ -326,8 +335,9 @@ function printMonth(){
   if(has&&r.exit_at)afterTotal+=sum.afterEnd;
   const rest=missingFields(r),problems=[];
   if(has&&rest.length)problems.push("Faltam: "+rest.join(", "));
-  if(r.shift===2&&!isSat(r.work_day)&&!isSun(r.work_day)&&r.break_out_at&&r.break_in_at&&sum.breakMinutes!==60){
-   problems.push("Intervalo: "+sum.breakMinutes+" min (previsto 60 min)");
+  const plannedBreak=expectedBreak(r.work_day);
+  if(plannedBreak!==null&&r.break_out_at&&r.break_in_at&&sum.breakMinutes!==plannedBreak){
+   problems.push("Intervalo: "+sum.breakMinutes+" min (previsto "+plannedBreak+" min)");
   }
   const messages=[r.note,...problems].filter(Boolean).join(" | ");
   const status=!has?"Sem registro":sum.valid?"Completo":"Incompleto";
@@ -376,7 +386,7 @@ function printMonth(){
   "<div><span>Tempo após previsto*</span><strong>"+formatMin(afterTotal)+"</strong></div>",
   "<div><span>Jornadas incompletas</span><strong>"+pending+"</strong></div></div>",
   "<div class='foot'>* Após fim previsto é a diferença entre a saída registrada e o fim programado (1º turno: 16h de segunda a sexta e 11h sábado; 2º turno: 23h04 de segunda a sexta e 18h30 sábado). Pode conter jornada incompleta e não equivale automaticamente a hora extra remunerada. Extras 60%/100% são estimativas somente de jornadas completas. Domingos e feriados marcados entram como 100%.<br>",
-  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Intervalos não são preenchidos automaticamente. No 2º turno, o descanso previsto de 1h ocorre no horário efetivamente registrado pelo usuário. Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
+  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Intervalos não são preenchidos automaticamente. Intervalo previsto: segunda a quinta 60 min, sexta-feira 30 min, sábado 15 min (nos horários reais registrados pelo usuário). Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
   "<div class='sign'><span>Conferência do colaborador</span><span>Conferência / observações</span></div>",
   "</body></html>"
  ].join("");
