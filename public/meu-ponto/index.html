@@ -97,7 +97,7 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
  </section>
  <section class="panel">
   <div class="toolbar">
-   <h2>Folha mensal</h2>
+   <div><h2>Folha mensal</h2><button type="button" class="btn small" id="printMonthBtn">Gerar PDF / imprimir</button></div>
    <div class="month-controls"><button class="btn small secondary" id="prevMonth">‹ Anterior</button><strong id="monthTitle">—</strong><button class="btn small secondary" id="nextMonth">Próximo ›</button></div>
   </div>
   <div class="actions" style="margin:0 0 12px">
@@ -105,12 +105,12 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
    <input id="editDate" type="date" style="width:auto;max-width:195px">
    <button class="btn small" type="button" id="editDateBtn">Abrir jornada</button>
   </div>
-  <p class="muted">Selecione uma data acima ou toque numa linha da tabela para editar entradas, intervalos, saída e observações. Horários em branco continuam em aberto. Saídas após 00h pertencem à jornada anterior.</p>
+  <p class="muted">Selecione uma data acima ou toque numa linha da tabela para editar entradas, intervalos, saída e observações. Horários em branco continuam em aberto. Saídas após 00h pertencem à jornada anterior. <b>Após previsto*</b> é apenas a diferença até a saída registrada e precisa de conferência quando faltam batidas.</p>
   <div class="scroller"><table>
-   <thead><tr><th>Data</th><th>Entrada</th><th>Almoço/Intervalo</th><th>Retorno</th><th>Saída</th><th>Trabalhadas</th><th>HE 60%</th><th>HE 100%</th><th>Status</th></tr></thead>
+   <thead><tr><th>Data</th><th>Entrada</th><th>Almoço/Intervalo</th><th>Retorno</th><th>Saída</th><th>Trabalhadas</th><th>Após previsto*</th><th>HE 60%</th><th>HE 100%</th><th>Status</th></tr></thead>
    <tbody id="monthRows"></tbody>
   </table></div>
-  <p class="muted" id="monthNote"></p>
+  <p class="muted" id="monthNote"></p><p class="help">Para guardar o espelho do mês, toque em <b>Gerar PDF / imprimir</b> e escolha <b>Salvar como PDF</b> no destino de impressão do celular. Também pode imprimir em A4 na horizontal.</p>
  </section>
  <section class="panel">
   <h2>Segurança e recuperação</h2>
@@ -137,7 +137,7 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
    <div><label for="breakIn">Retorno do intervalo</label><input id="breakIn" type="datetime-local"></div>
    <div><label for="exitAt">Saída final</label><input id="exitAt" type="datetime-local"></div>
   </div>
-  <div class="help">Exemplo: jornada de 14/11 com saída à 00:27 → saída final em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
+  <div class="help">1º turno: 07:00–16:00 (seg–sex), sábado 07:00–11:00. 2º turno desde 02/11: 14:36–23:04 (seg–sex), sábado 12:50–18:30. Intervalo previsto de 1 hora nos dias úteis: registre a saída e o retorno nos horários reais, sem preenchimento automático. Exemplo: saída final de 14/11 às 00:27 deve ser registrada em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
   <div style="margin-top:13px"><label for="note">Observações</label><textarea id="note" rows="3" maxlength="2000" placeholder="Ex.: hora extra, treinamento, papel com horário real"></textarea></div>
   <div style="margin-top:13px"><label><input id="holiday" type="checkbox" style="width:auto"> Feriado</label></div>
   <div class="actions"><button class="btn" type="submit">Salvar jornada</button><button class="btn secondary" id="cancelEdit" type="button">Cancelar</button></div>
