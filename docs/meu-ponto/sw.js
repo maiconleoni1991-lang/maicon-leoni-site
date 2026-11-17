@@ -1,5 +1,5 @@
-const CACHE="meu-ponto-web-shell-v9";
-const ASSETS=["./","./index.html","./app.js","./payroll.js","./icon.svg","./manifest.webmanifest"];
+const CACHE="meu-ponto-web-shell-v10";
+const ASSETS=["./","./index.html","./app.js","./payroll.js","./pdf-export.js","./icon.svg","./manifest.webmanifest"];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
