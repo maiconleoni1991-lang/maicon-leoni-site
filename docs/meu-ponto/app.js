@@ -502,7 +502,9 @@ function punch(){
 }
 function shiftMonth(delta){
  const [y,m]=month.split("-").map(Number),d=new Date(y,m-1+delta,1);
- month=d.getFullYear()+"-"+pad(d.getMonth()+1);render();
+ month=d.getFullYear()+"-"+pad(d.getMonth()+1);
+ if($("pdfPreviewBox"))$("pdfPreviewBox").classList.add("hidden");
+ render();
 }
 
 function dateWeek(day){
@@ -523,91 +525,69 @@ function monthCalendar(){
  }
  return items;
 }
-function printMonth(){
- if(!session){toast("Entre na sua conta para gerar o espelho.");return;}
- const [year,mo]=month.split("-").map(Number);
- const monthLabel=new Date(year,mo-1,1).toLocaleDateString("pt-BR",{month:"long",year:"numeric"}).toUpperCase();
- const data=monthCalendar();
- const fin=monthFinance(month);
- let confirmed=0,extra60=0,extra100=0,afterTotal=0,pending=0,registered=0;
- const body=data.map(r=>{
-  const has=SLOTS.some(k=>!!r[k]),sum=summarize(r);
-  if(has)registered++;
-  if(has&&sum.valid){confirmed+=sum.partial;extra60+=sum.he60;extra100+=sum.he100;}
-  if(has&&!sum.valid)pending++;
-  if(has&&r.exit_at)afterTotal+=sum.afterEnd;
-  const rest=missingFields(r),problems=[];
-  if(has&&rest.length)problems.push("Faltam: "+rest.join(", "));
-  const plannedBreak=expectedBreak(r.work_day);
-  if(plannedBreak!==null&&r.break_out_at&&r.break_in_at&&sum.breakMinutes>plannedBreak){
-   problems.push("Intervalo acima da referência: "+sum.breakMinutes+" min (referência "+plannedBreak+" min); conferir se necessário");
+function buildMonthPdfData(){
+ const daily=monthCalendar();
+ let registered=0,complete=0,worked=0,extra60=0,extra100=0;
+ const reportRows=daily.map(r=>{
+  const filled=SLOTS.some(k=>!!r[k]),sum=summarize(r);
+  if(filled){
+   registered++;
+   if(sum.valid){complete++;worked+=sum.partial;extra60+=sum.he60;extra100+=sum.he100;}
   }
-  const cross=r.exit_at&&r.exit_at.slice(0,10)!==r.work_day;
-  const holidayHere=holidayOn(r.work_day,r)?holidayName(r.work_day)||"Feriado escolhido manualmente":null;
-  const afterDay=cross?r.exit_at.slice(0,10):null;
-  const holidayLater=afterDay&&premiumDay(afterDay,r)?(holidayName(afterDay)||"domingo/feriado"):"";
-  const messages=[holidayHere?"Feriado: "+holidayHere:"",holidayLater?"Virada para "+fmtDate(afterDay)+" ("+holidayLater+"): período após 00h com 100%":"",r.note,...problems].filter(Boolean).join(" | ");
-  const status=!has?"Sem registro":sum.valid?"Completo":"Incompleto";
-  const work=has&&sum.partial?formatMin(sum.partial)+(sum.valid?"":" **"):"";
-  const record=[
-    fmtDate(r.work_day),dateWeek(r.work_day),r.shift===1?"1º turno":"2º turno",
-    displayTime(r.entry_at,r.work_day)==="—"?"":displayTime(r.entry_at,r.work_day),
-    displayTime(r.break_out_at,r.work_day)==="—"?"":displayTime(r.break_out_at,r.work_day),
-    displayTime(r.break_in_at,r.work_day)==="—"?"":displayTime(r.break_in_at,r.work_day),
-    displayTime(r.exit_at,r.work_day)==="—"?"":displayTime(r.exit_at,r.work_day),
-    work,has&&r.exit_at?formatMin(sum.afterEnd):"",
-    status,messages,
-    isSun(r.work_day)?"—":r.shift===1?(isSat(r.work_day)?"11:00":"16:00"):(isSat(r.work_day)?"18:30":"23:04")
-  ];
-  return "<tr"+(!has?" class='blank'":"")+">"+record.map((value,i)=>"<td"+(i===10?" class='note'":"")+">"+escHtml(value)+"</td>").join("")+"</tr>";
- }).join("");
- const reportHtml=[
-  "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>",
-  "<title>Espelho de ponto - "+escHtml(monthLabel)+"</title>",
-  "<style>",
-  "@page{size:A4 landscape;margin:9mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#152b47;background:#fff;margin:12px}",
-  ".top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.eyebrow{font-weight:700;font-size:9px;letter-spacing:.12em;color:#51647b}",
-  "h1{font-size:19px;margin:3px 0 2px}.subtitle{font-size:10px;margin:3px 0 10px;color:#526780}.meta{text-align:right;font-size:9px;color:#53677d}",
-  "table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8px}th{background:#193b65;color:white;padding:5px 2px;text-align:left;border:1px solid #bdcbda}",
-  "td{padding:4px 3px;border:1px solid #cfdae6;vertical-align:top;overflow-wrap:anywhere;word-break:normal}",
-  "tbody tr:nth-child(even){background:#eff4f9}tbody tr.blank{color:#8994a1;background:#fafbfd}",
-  "th:nth-child(1){width:7%}th:nth-child(2){width:4%}th:nth-child(3){width:7%}th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:8%}",
-  "th:nth-child(8){width:7%}th:nth-child(9){width:8%}th:nth-child(10){width:8%}th:nth-child(11){width:18%}th:nth-child(12){width:7%}",
-  "thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}",
-  ".summary{display:flex;gap:8px;margin:10px 0}.summary div{flex:1;border:1px solid #d1dce8;padding:7px;background:#f5f8fc}",
-  ".summary span{display:block;font-size:8px;color:#55677f}.summary strong{display:block;margin-top:4px;font-size:13px}",
-  ".foot{font-size:9px;color:#4c5f76;line-height:1.5;margin-top:9px}",
-  ".sign{display:flex;justify-content:space-between;margin-top:17px;font-size:9px;color:#536779}.sign span{display:block;width:44%;border-top:1px solid #8495a9;padding-top:5px}",
-  ".toolbar{padding:10px 0 16px;border-bottom:1px solid #ddd;margin-bottom:13px;font-size:13px}.toolbar button{padding:9px 15px;background:#2365d5;border:0;color:white;border-radius:7px;font-weight:700}",
-  "@media print{body{margin:0}.toolbar{display:none}}",
-  "</style></head><body>",
-  "<div class='toolbar'>Prévia do espelho mensal — para criar o arquivo, escolha <b>Imprimir</b> e, no destino, <b>Salvar como PDF</b>. <button onclick='window.print()'>Imprimir / Salvar PDF</button></div>",
-  "<div class='top'><div><div class='eyebrow'>MEU PONTO · RELATÓRIO MENSAL</div><h1>FOLHA DE PONTO | "+escHtml(monthLabel)+"</h1>",
-  "<div class='subtitle'>Espelho de ponto • 1º e 2º turno • batidas preservadas mesmo quando incompletas</div></div>",
-  "<div class='meta'>Gerado em "+escHtml(new Date().toLocaleString("pt-BR"))+"<div>Relatório pessoal para conferência</div></div></div>",
-  "<table><thead><tr>"+["Data","Dia","Turno","Entrada","Saída intervalo","Retorno","Saída final","Horas apuradas**","Após fim previsto*","Situação","Apontamentos / observações","Fim previsto"].map(s=>"<th>"+escHtml(s)+"</th>").join("")+"</tr></thead><tbody>"+body+"</tbody></table>",
-  "<div class='summary'><div><span>Jornadas registradas</span><strong>"+registered+"</strong></div>",
-  "<div><span>Horas confirmadas</span><strong>"+formatMin(confirmed)+"</strong></div>",
-  "<div><span>Extras 60%*</span><strong>"+formatMin(extra60)+"</strong></div>",
-  "<div><span>Extras 100%*</span><strong>"+formatMin(extra100)+"</strong></div>",
-  "<div><span>Tempo após previsto*</span><strong>"+formatMin(afterTotal)+"</strong></div>",
-  "<div><span>Jornadas incompletas</span><strong>"+pending+"</strong></div></div>",
-  "<div class='summary'><div><span>Adicional noturno ("+escHtml(paySettings.night_rate_pct)+"%)</span><strong>"+money(fin.nightValue)+"</strong></div>",
-  "<div><span>Hora noturna real / reduzida</span><strong>"+formatMin(Math.round(fin.nightClock*60))+" / "+formatMin(Math.round(fin.nightPaid*60))+"</strong></div>",
-  "<div><span>HE "+escHtml(paySettings.he60_pct)+"%</span><strong>"+money(fin.extra60)+"</strong></div>",
-  "<div><span>HE "+escHtml(paySettings.he100_pct)+"%</span><strong>"+money(fin.extra100)+"</strong></div>",
-  "<div><span>DSR sobre adicionais (estimado)</span><strong>"+money(fin.dsrHE+fin.dsrNight)+"</strong></div>",
-  "<div><span>Total acréscimos previstos</span><strong>"+money(fin.additional)+"</strong></div></div>",
-  "<div class='foot'>Salário-base de referência: "+money(paySettings.monthly_salary)+" • divisor "+escHtml(paySettings.hour_divisor)+" • salário-hora "+money(fin.rate)+". O total acima representa somente acréscimos BRUTOS e não inclui salário-base, descontos, impostos, FGTS ou outras verbas. Cálculo de DSR: "+fin.rests+" descansos ÷ "+fin.useful+" dias úteis sobre valores de extras e adicional noturno. Ajustar conforme a convenção coletiva, banco de horas e folgas compensatórias. Outubro inicia em 22/10 e requer proporcionalidade de salário. Horas em 22h–05h usam 52min30s por hora. A base da hora extra noturna inclui adicional noturno.</div>",
-  "<div class='foot'>* Após fim previsto é a diferença entre a saída registrada e o fim programado (1º turno: 16h de segunda a sexta e 11h sábado; 2º turno: 23h04 de segunda a sexta e 18h30 sábado). Pode conter jornada incompleta e não equivale automaticamente a hora extra remunerada. Extras 60%/100% são estimativas somente de jornadas completas. Domingos e feriados marcados entram como 100%.<br>",
-  "** Horas de jornadas incompletas são parciais ou estimadas entre entrada e saída, e não entram nos totais confirmados. Os horários no espelho são as batidas reais, sem preenchimento automático de intervalos. Intervalos de referência: segunda a quinta 60 min, sexta 30 min, sábado 15 min. Retornos antes da referência não geram pendência. Não foram aplicadas tolerâncias nem regras específicas de folha de pagamento.</div>",
-  "<div class='sign'><span>Conferência do colaborador</span><span>Conferência / observações</span></div>",
-  "</body></html>"
- ].join("");
- const view=window.open("","_blank");
- if(!view){toast("Permita abrir a prévia do relatório no navegador.");return;}
- view.document.open();view.document.write(reportHtml);view.document.close();
- view.focus();
+  const status=!filled?"Sem registro":sum.valid?"Completo":"Incompleto";
+  const parts=[];
+  if(holidayOn(r.work_day,r)){
+   parts.push("Feriado: "+(holidayName(r.work_day)||"definido manualmente"));
+  }else if(isSun(r.work_day)){
+   parts.push("Domingo");
+  }
+  if(r.exit_at&&r.exit_at.slice(0,10)!==r.work_day&&premiumDay(r.exit_at.slice(0,10),r)){
+   parts.push("Virada para domingo/feriado: 100% apos meia-noite");
+  }
+  if(r.note)parts.push(r.note);
+  if(filled&&!sum.valid){
+   const missing=missingFields(r);
+   if(missing.length)parts.push("A conferir: "+missing.join(", "));
+  }
+  if(!filled)parts.push("Sem marcacoes");
+  const mark=k=>{
+   const value=displayTime(r[k],r.work_day);
+   return value==="—"?"—":value.replace(" (+1 dia)"," (+1)");
+  };
+  return {
+   date:fmtDate(r.work_day),weekday:dateWeek(r.work_day),
+   entry:mark("entry_at"),breakOut:mark("break_out_at"),breakIn:mark("break_in_at"),exit:mark("exit_at"),
+   worked:filled&&sum.partial?formatMin(sum.partial)+(sum.valid?"":" *"):"—",
+   he60:sum.valid&&sum.he60?formatMin(sum.he60):"—",
+   he100:sum.valid&&sum.he100?formatMin(sum.he100):"—",
+   status:status,note:parts.join(" | ")||status
+  };
+ });
+ const financial=monthFinance(month);
+ return {
+  month,rows:reportRows,
+  summary:{
+   registered,complete,worked:formatMin(worked),he60:formatMin(extra60),
+   he100:formatMin(extra100),nightClock:formatMin(Math.round(financial.nightClock*60))
+  }
+ };
+}
+function downloadMonthPdf(){
+ if(!session){toast("Entre na sua conta para baixar o espelho.");return;}
+ if(!window.MeuPontoPDF){toast("Gerador de PDF indisponivel. Atualize o aplicativo.");return;}
+ try{
+  const report=window.MeuPontoPDF.download(buildMonthPdfData());
+  toast("Espelho de "+month+" criado: "+report.rows+" dias, "+report.pages+" pagina(s). Confira na pasta Downloads.");
+ }catch(e){toast("Falha ao gerar PDF: "+e.message);}
+}
+function previewMonthPdf(){
+ if(!session){toast("Entre na sua conta para visualizar o espelho.");return;}
+ if(!window.MeuPontoPDF){toast("Gerador de PDF indisponivel. Atualize o aplicativo.");return;}
+ try{
+  const report=window.MeuPontoPDF.preview(buildMonthPdfData());
+  $("pdfPreviewBox").dataset.month=month;
+  toast("Visualizacao do espelho "+month+" carregada ("+report.pages+" pagina(s)).");
+ }catch(e){toast("Nao foi possivel visualizar: "+e.message);}
 }
 
 function download(){
@@ -707,7 +687,8 @@ function init(){
  $("importBtn").addEventListener("click",()=>$("backupFile").click());
  $("backupFile").addEventListener("change",e=>{if(e.target.files?.[0])importFile(e.target.files[0]);});
  $("exportBtn").addEventListener("click",download);
- $("printMonthBtn").addEventListener("click",printMonth);
+ $("downloadMonthPdfBtn").addEventListener("click",downloadMonthPdf);
+ $("previewMonthPdfBtn").addEventListener("click",previewMonthPdf);
  $("syncBtn").addEventListener("click",()=>sync());
  window.addEventListener("online",()=>sync());
  window.addEventListener("offline",()=>putStatus("Offline — salvo neste aparelho","warn"));
