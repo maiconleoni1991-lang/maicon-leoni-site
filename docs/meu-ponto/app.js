@@ -7,7 +7,7 @@ const SLOTS=["entry_at","break_out_at","break_in_at","exit_at"];
 const LABELS=["Entrada","Saída para intervalo","Retorno","Saída final"];
 const $=id=>document.getElementById(id);
 let session=null,rows={},dirty={},month=new Date().toISOString().slice(0,7),deferredInstall=null;
-let syncing=false,timer=null;
+let syncing=false,timer=null,cloudRows={},lastSyncCount=null;
 const idOf=()=>session?.user?.id||null;
 const cacheKey=()=>idOf()?"mp_web_cache_"+idOf():null;
 const pad=n=>String(n).padStart(2,"0");
@@ -194,6 +194,7 @@ function showApp(){
  render();
 }
 function showAuth(){
+ cloudRows={};lastSyncCount=null;
  $("authPanel").classList.remove("hidden");
  $("appPanel").classList.add("hidden");
  $("logoutBtn").classList.add("hidden");
@@ -254,7 +255,7 @@ async function doAuth(method){
 }
 async function logout(){
  const token=session?.access_token;
- session=null;rows={};dirty={};localStorage.removeItem(SESSION_KEY);showAuth();
+ session=null;rows={};dirty={};cloudRows={};lastSyncCount=null;localStorage.removeItem(SESSION_KEY);showAuth();
  if(token)try{await endpoint("/auth/v1/logout","POST",{},token);}catch(e){}
 }
 function saveRow(r){
@@ -287,6 +288,8 @@ async function sync(silent=false){
   putStatus("Sincronizando…");
   await refreshSession();
   const remote=await endpoint("/rest/v1/mp_workdays?select=*&order=work_day.asc","GET",undefined,session.access_token);
+  lastSyncCount=(remote||[]).length;
+  cloudRows=Object.fromEntries((remote||[]).map(r=>[r.work_day,fromDb(r)]));
   const byDay=Object.fromEntries((remote||[]).map(r=>[r.work_day,r]));
   // Dados de outro aparelho entram somente quando não há edição local pendente.
   (remote||[]).forEach(r=>{if(!dirty[r.work_day])rows[r.work_day]=fromDb(r);});
@@ -312,7 +315,10 @@ async function sync(silent=false){
   if(conflicts){
     putStatus(conflicts+" conflito(s) — conferir","warn");
     if(!silent)toast("Existe alteração mais recente na nuvem em "+conflicts+" dia(s). As suas edições locais foram preservadas; faça uma cópia e confira antes de sobrescrever.");
-  }else putStatus("Salvo na nuvem","good");
+  }else if(lastSyncCount===0){
+    putStatus("Esta conta não tem histórico na nuvem","warn");
+    toast("A conta conectada não apresentou os horários antigos. Confira se entrou com o mesmo e-mail. Não apague o aplicativo ou o cache.");
+  }else putStatus(lastSyncCount+" jornadas recuperadas da nuvem","good");
  }catch(e){
    store();render();putStatus("Sem sincronização","warn");
    if(!silent)toast("Não foi possível sincronizar: "+e.message);
@@ -333,6 +339,48 @@ function displayTime(t,day){
  if(!t)return "—";
  return t.slice(11,16)+(t.slice(0,10)>day?" (+1 dia)":"");
 }
+function renderRecentHistory(){
+ const summary=$("historySummary"),container=$("recentWorkdays");
+ if(!summary||!container)return;
+ const cloud=Object.values(cloudRows),local=Object.values(rows);
+ const dataset=cloud.length?cloud:local;
+ const countOct=dataset.filter(r=>r.work_day?.startsWith("2026-10")).length;
+ const countNov=dataset.filter(r=>r.work_day?.startsWith("2026-11")).length;
+ if(lastSyncCount===0){
+  summary.textContent="Nenhuma jornada encontrada na conta online atual. Confira o e-mail de login. Horários locais mantidos: "+local.length+".";
+ }else if(lastSyncCount!==null){
+  summary.textContent=cloud.length+" jornadas confirmadas na nuvem • "+countOct+" em outubro • "+countNov+" em novembro.";
+ }else{
+  summary.textContent=local.length+" jornada(s) neste aparelho. Consultando a nuvem sem apagar alterações locais…";
+ }
+ container.replaceChildren();
+ const recent=dataset.slice().sort((a,b)=>b.work_day.localeCompare(a.work_day)).slice(0,8);
+ if(!recent.length){
+  const p=document.createElement("p");p.className="muted";
+  p.textContent="Nenhuma jornada disponível nesta sessão. Verifique o status da sincronização e a conta utilizada.";
+  container.append(p);
+  return;
+ }
+ for(const r of recent){
+  const btn=document.createElement("button");btn.type="button";btn.className="recovered-day";
+  const title=document.createElement("span");title.className="date";title.textContent=fmtDate(r.work_day);
+  const marks=document.createElement("span");marks.className="marks";
+  marks.textContent="Entrada "+displayTime(r.entry_at,r.work_day)+
+   " · Intervalo "+displayTime(r.break_out_at,r.work_day)+
+   " / "+displayTime(r.break_in_at,r.work_day)+
+   " · Saída "+displayTime(r.exit_at,r.work_day);
+  const cap=document.createElement("span");cap.className="small";
+  cap.textContent=dirty[r.work_day]?"Atenção: alteração local pendente, confira antes de editar":cloud.length?"Registro confirmado na nuvem":"Cópia local, aguardando sincronização";
+  btn.append(title,marks,cap);
+  btn.addEventListener("click",()=>{
+   month=r.work_day.slice(0,7);
+   setArea("espelho");render();
+   if(!dirty[r.work_day])editDay(r.work_day);
+   else toast("Há edição local pendente neste dia. Confira o espelho e o backup antes de qualquer alteração.");
+  });
+  container.append(btn);
+ }
+}
 function renderQuick(){
  const r=currentRecord();
  $("quickDay").textContent="Data desta jornada: "+fmtDate(r.work_day)+(r.work_day!==today()?" · atravessou a meia-noite":"");
@@ -349,6 +397,7 @@ function renderQuick(){
 function render(){
  if(!session)return;
  renderQuick();
+ renderRecentHistory();
  const monthRows=Object.values(rows).filter(r=>r.work_day?.startsWith(month))
   .sort((a,b)=>a.work_day.localeCompare(b.work_day));
  const [year,mo]=month.split("-").map(Number);
@@ -618,6 +667,8 @@ function init(){
  $("nextMonth").addEventListener("click",()=>shiftMonth(1));
  $("payPrevMonth").addEventListener("click",()=>shiftMonth(-1));
  $("payNextMonth").addEventListener("click",()=>shiftMonth(1));
+ $("historySyncBtn").addEventListener("click",()=>sync());
+ document.querySelectorAll("[data-open-month]").forEach(el=>el.addEventListener("click",()=>{month=el.dataset.openMonth;setArea("espelho");render();}));
  $("punchBtn").addEventListener("click",punch);
  $("editTodayBtn").addEventListener("click",()=>editDay(activeDay()));
  $("editDate").value=today();
