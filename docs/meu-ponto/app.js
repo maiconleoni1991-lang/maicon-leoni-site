@@ -7,7 +7,7 @@ const SLOTS=["entry_at","break_out_at","break_in_at","exit_at"];
 const LABELS=["Entrada","Saída para intervalo","Retorno","Saída final"];
 const $=id=>document.getElementById(id);
 let session=null,rows={},dirty={},month=new Date().toISOString().slice(0,7),deferredInstall=null;
-let syncing=false,timer=null,cloudRows={},lastSyncCount=null;
+let syncing=false,timer=null,cloudRows={},lastSyncCount=null,lastPunchAt=0;
 const idOf=()=>session?.user?.id||null;
 const cacheKey=()=>idOf()?"mp_web_cache_"+idOf():null;
 const pad=n=>String(n).padStart(2,"0");
@@ -343,7 +343,11 @@ function renderRecentHistory(){
  const summary=$("historySummary"),container=$("recentWorkdays");
  if(!summary||!container)return;
  const cloud=Object.values(cloudRows),local=Object.values(rows);
- const dataset=cloud.length?cloud:local;
+ // Mostra primeiro os registros locais pendentes e, para os demais dias, os confirmados na nuvem.
+ // Nunca descarta uma batida local ainda não sincronizada.
+ const merged={...rows};
+ for(const [day,remote] of Object.entries(cloudRows)){if(!dirty[day])merged[day]=remote;}
+ const dataset=Object.values(merged);
  const countOct=dataset.filter(r=>r.work_day?.startsWith("2026-10")).length;
  const countNov=dataset.filter(r=>r.work_day?.startsWith("2026-11")).length;
  if(lastSyncCount===0){
@@ -391,8 +395,14 @@ function renderQuick(){
   box.append(small,strong);$("quickMarks").append(box);
  });
  const next=SLOTS.findIndex(k=>!r[k]);
- $("punchBtn").textContent=next===-1?"Jornada concluída":"Registrar "+LABELS[next].toLowerCase();
- $("punchBtn").disabled=next===-1;
+ const action=next<0?"Jornada concluída":"Bater ponto · "+LABELS[next].toLowerCase();
+ $("punchBtn").textContent=action;
+ $("punchNowBtn").textContent=next<0?"◷ Jornada concluída":"◷ "+action;
+ $("punchBtn").disabled=next<0;
+ $("punchNowBtn").disabled=next<0;
+ $("punchGuide").textContent=next<0?
+   "As quatro batidas desta jornada estão preenchidas. Para corrigir, use Editar jornada.":
+   "Próxima marcação: "+LABELS[next]+". Será utilizado o horário exato do toque, sem horário predefinido." ;
 }
 function render(){
  if(!session)return;
@@ -472,12 +482,23 @@ function submitDay(ev){
  $("editDialog").close();saveRow(r);
 }
 function punch(){
- const pressedAt=nowLocal(); // horário capturado assim que o usuário toca em Registrar
- const r=currentRecord(),slot=SLOTS.findIndex(k=>!r[k]);
- if(slot<0)return;
- if(!window.confirm("Registrar "+LABELS[slot].toLowerCase()+" às "+pressedAt.slice(11,16)+" na jornada de "+fmtDate(r.work_day)+"?"))return;
+ if(!session){toast("Entre na sua conta para bater o ponto.");return;}
+ const clickTime=Date.now();
+ if(clickTime-lastPunchAt<12000){
+  toast("A última batida foi registrada há poucos segundos. Confira antes de registrar outra.");return;
+ }
+ const pressedAt=nowLocal(); // Captura a hora do toque, não a hora após a confirmação.
+ const r={...currentRecord()},slot=SLOTS.findIndex(k=>!r[k]);
+ if(slot<0){toast("Esta jornada já tem quatro batidas. Abra Editar jornada para conferir.");return;}
+ const prev=slot>0?r[SLOTS[slot-1]]:null;
+ if(prev&&ms(pressedAt)<=ms(prev)){
+  toast("Horário igual ou anterior à batida anterior. Aguarde a mudança de minuto e confira.");return;
+ }
+ if(!window.confirm("Bater ponto: "+LABELS[slot]+"\nData da jornada: "+fmtDate(r.work_day)+"\nHorário real: "+pressedAt.slice(11,16)+"\n\nConfirmar registro?"))return;
+ lastPunchAt=clickTime;
  r[SLOTS[slot]]=pressedAt;
  saveRow(r);
+ toast(LABELS[slot]+" registrada às "+pressedAt.slice(11,16)+". Horário guardado no aparelho e enviado à nuvem quando possível.");
 }
 function shiftMonth(delta){
  const [y,m]=month.split("-").map(Number),d=new Date(y,m-1+delta,1);
@@ -670,6 +691,7 @@ function init(){
  $("historySyncBtn").addEventListener("click",()=>sync());
  document.querySelectorAll("[data-open-month]").forEach(el=>el.addEventListener("click",()=>{month=el.dataset.openMonth;setArea("espelho");render();}));
  $("punchBtn").addEventListener("click",punch);
+ $("punchNowBtn").addEventListener("click",punch);
  $("editTodayBtn").addEventListener("click",()=>editDay(activeDay()));
  $("editDate").value=today();
  $("editDateBtn").addEventListener("click",()=>{
