@@ -2,10 +2,10 @@
 (function(){
  const PAGE_W=842,PAGE_H=595,MARGIN=28;
  const COLS=[
-  {name:"Data",w:57},{name:"Dia",w:30},{name:"Entrada",w:58},
-  {name:"Saida int.",w:66},{name:"Retorno",w:66},{name:"Saida",w:66},
-  {name:"Trabalhadas",w:73},{name:"HE 60%",w:55},{name:"HE 100%",w:55},
-  {name:"Situacao / observacoes",w:288}
+  {name:"Data",w:54},{name:"Dia",w:27},{name:"Entrada",w:55},
+  {name:"Saida int.",w:60},{name:"Retorno",w:60},{name:"Saida",w:60},
+  {name:"Trabalhadas",w:68},{name:"HE 60%",w:51},{name:"HE 100%",w:51},
+  {name:"Situacao / observacoes",w:300}
  ];
  const C={navy:"#132b49",gold:"#caab6c",light:"#e9eff6",ink:"#162f4d",muted:"#56667b",line:"#d2dce7"};
  function safe(value){
@@ -150,25 +150,42 @@
   for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;
   return {bytes,pages:pages.length,rows:count,name:"MeuPonto_Espelho_"+input.month+".pdf"};
  }
- function download(data){
+
+ let latestUrl=null;
+ function prepare(data){
   const result=makePDF(data);
-  const blob=new Blob([result.bytes],{type:"application/pdf"});
-  const url=URL.createObjectURL(blob);
-  const link=document.createElement("a");
-  link.href=url;link.download=result.name;link.textContent="Seu PDF esta pronto: "+result.name+" (toque para abrir ou baixar)";
-  link.className="btn secondary";link.style.display="inline-block";
-  link.style.marginTop="8px";
-  const holder=document.getElementById("pdfDownloadResult");
-  if(holder){
-   const old=holder.querySelector("a[data-pdf-link]");
-   if(old&&old.href.startsWith("blob:"))URL.revokeObjectURL(old.href);
-   link.setAttribute("data-pdf-link","1");
-   holder.replaceChildren(link);
-  }
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  return result;
+  const url=URL.createObjectURL(new Blob([result.bytes],{type:"application/pdf"}));
+  if(latestUrl)URL.revokeObjectURL(latestUrl);
+  latestUrl=url;
+  return {result,url};
  }
- window.MeuPontoPDF={makePDF,download};
+ function download(data){
+  const file=prepare(data);
+  const holder=document.getElementById("pdfDownloadResult");
+  const link=document.createElement("a");
+  link.href=file.url;link.download=file.result.name;
+  link.textContent="Baixar novamente: "+file.result.name;
+  link.className="btn secondary";link.style.display="inline-block";link.style.marginTop="8px";
+  if(holder)holder.replaceChildren(link);
+  // Disparado diretamente pelo clique do usuário; sem nova aba ou diálogo de impressão.
+  const trigger=document.createElement("a");
+  trigger.href=file.url;trigger.download=file.result.name;
+  document.body.appendChild(trigger);trigger.click();trigger.remove();
+  return file.result;
+ }
+ function preview(data){
+  const file=prepare(data);
+  const box=document.getElementById("pdfPreviewBox");
+  const frame=document.getElementById("pdfPreviewFrame");
+  const link=document.getElementById("pdfPreviewOpenLink");
+  if(!box||!frame||!link)throw Error("Visualizador de PDF não encontrado");
+  box.classList.remove("hidden");
+  frame.src=file.url;
+  link.href=file.url;
+  link.target="_blank";
+  link.rel="noopener noreferrer";
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+  return file.result;
+ }
+ window.MeuPontoPDF={makePDF,download,preview};
 })();
