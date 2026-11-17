@@ -112,6 +112,34 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
   </table></div>
   <p class="muted" id="monthNote"></p><p class="help">Para guardar o espelho do mês, toque em <b>Gerar PDF / imprimir</b> e escolha <b>Salvar como PDF</b> no destino de impressão do celular. Também pode imprimir em A4 na horizontal.</p>
  </section>
+ <section class="panel" id="financePanel">
+  <h2>Prévia de holerite e adicionais</h2>
+  <p class="muted">Conferência aproximada do mês selecionado. Jornada noturna urbana: 22h–05h; hora reduzida de 52min30s. Feriados e domingos podem gerar 100%, salvo compensação. Os valores não substituem seu holerite.</p>
+  <div class="stat-grid">
+   <div class="stat"><span>Horas noturnas reais / reduzidas</span><strong id="financeNightHours" style="font-size:1rem">—</strong></div>
+   <div class="stat"><span>Adicional noturno</span><strong id="financeNightValue">—</strong></div>
+   <div class="stat"><span>Horas extras 60%</span><strong id="financeExtra60" style="font-size:1rem">—</strong></div>
+   <div class="stat"><span>Horas extras 100%</span><strong id="financeExtra100" style="font-size:1rem">—</strong></div>
+   <div class="stat"><span>Reflexos DSR estimados</span><strong id="financeDSR">—</strong></div>
+   <div class="stat"><span>Total de acréscimos estimados</span><strong id="financeTotal">—</strong></div>
+  </div>
+  <p class="muted" id="financeBase"></p>
+  <p class="muted" id="financeNote"></p>
+  <details style="margin-top:12px">
+   <summary style="cursor:pointer;font-weight:650">Ajustar salário, divisor e percentuais</summary>
+   <form id="financeForm">
+    <div class="form-grid" style="margin-top:13px">
+     <div><label for="monthlySalary">Salário-base (R$)</label><input id="monthlySalary" type="number" min="1" max="1000000" step="0.01" required></div>
+     <div><label for="hourDivisor">Divisor mensal (horas)</label><input id="hourDivisor" type="number" min="1" max="744" step="0.01" required></div>
+     <div><label for="nightRate">Adicional noturno (%)</label><input id="nightRate" type="number" min="20" max="200" step="0.01" required></div>
+     <div><label for="extra60Rate">Horas extras normais (%)</label><input id="extra60Rate" type="number" min="50" max="200" step="0.01" required></div>
+     <div><label for="extra100Rate">Domingo / feriado (%)</label><input id="extra100Rate" type="number" min="100" max="300" step="0.01" required></div>
+    </div>
+    <div class="actions"><button type="submit" class="btn" id="financeSave">Salvar parâmetros na nuvem</button></div>
+   </form>
+  </details>
+  <p class="help">O DSR é uma estimativa sobre horas extras e adicional noturno, conforme dias úteis, domingos e feriados. Outros reflexos (férias, 13º, FGTS e demais verbas) dependem da habitualidade, da legislação e da convenção coletiva; não estão somados aqui.</p>
+ </section>
  <section class="panel">
   <h2>Segurança e recuperação</h2>
   <p class="muted">Os horários ficam na sua conta online. Batidas feitas sem conexão são guardadas localmente e sincronizadas quando a internet voltar. Em caso de conflito entre aparelhos, confira antes de substituir dados.</p>
@@ -138,9 +166,9 @@ footer{color:#768499;font-size:.75rem;text-align:center;margin:30px auto}
    <div><label for="exitAt">Saída final</label><input id="exitAt" type="datetime-local"></div>
   </div>
   <div class="help" id="expectedBreakInfo">Intervalos de referência: segunda a quinta 60 min, sexta-feira 30 min, sábado 15 min. O espelho mostra os horários reais das batidas, mesmo quando o descanso é menor.</div>
-  <div class="help">1º turno: 07:00–16:00 (seg–sex), sábado 07:00–11:00. 2º turno desde 02/11: 14:36–23:04 (seg–sex), sábado 12:50–18:30. Intervalos não são preenchidos automaticamente. Exemplo: saída final da jornada de 14/11 às 00:27 deve ser registrada em 15/11 às 00:27. Deixe vazios os horários não registrados.</div>
+  <div class="help">1º turno: 07:00–16:00 (seg–sex), sábado 07:00–11:00. 2º turno desde 02/11: 14:36–23:04 (seg–sex), sábado 12:50–18:30. Intervalos não são preenchidos automaticamente. Exemplo: jornada de 14/11 começou às 19h00, teve intervalo de 15/11 00h27 a 00h42 e saída final em 15/11 01h21. Deixe vazios os horários não registrados.</div>
   <div style="margin-top:13px"><label for="note">Observações</label><textarea id="note" rows="3" maxlength="2000" placeholder="Ex.: hora extra, treinamento, papel com horário real"></textarea></div>
-  <div style="margin-top:13px"><label><input id="holiday" type="checkbox" style="width:auto"> Feriado</label></div>
+  <div style="margin-top:13px"><label for="holidayMode">Feriado nesta data</label><select id="holidayMode"><option value="auto">Automático: calendário de Brasil, São Paulo e Monte Alto</option><option value="yes">Marcar como feriado</option><option value="no">Marcar como dia normal</option></select><p class="help" id="holidaySuggestion">Selecione a data para conferir o calendário.</p></div>
   <div class="actions"><button class="btn" type="submit">Salvar jornada</button><button class="btn secondary" id="cancelEdit" type="button">Cancelar</button></div>
  </form>
 </dialog>
