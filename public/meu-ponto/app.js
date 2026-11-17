@@ -8,6 +8,7 @@ const LABELS=["Entrada","Saída para intervalo","Retorno","Saída final"];
 const $=id=>document.getElementById(id);
 let session=null,rows={},dirty={},month=new Date().toISOString().slice(0,7),deferredInstall=null;
 let syncing=false,timer=null,cloudRows={},lastSyncCount=null,lastPunchAt=0;
+const pdfSelectedMonths=new Set();let pdfSelectionInitialized=false;
 const idOf=()=>session?.user?.id||null;
 const cacheKey=()=>idOf()?"mp_web_cache_"+idOf():null;
 const pad=n=>String(n).padStart(2,"0");
@@ -408,6 +409,7 @@ function render(){
  if(!session)return;
  renderQuick();
  renderRecentHistory();
+ renderPdfMonthChoices();
  const monthRows=Object.values(rows).filter(r=>r.work_day?.startsWith(month))
   .sort((a,b)=>a.work_day.localeCompare(b.work_day));
  const [year,mo]=month.split("-").map(Number);
@@ -516,8 +518,8 @@ function escHtml(v){
 function missingFields(r){
  return SLOTS.filter(k=>!r[k]).map(k=>LABELS[SLOTS.indexOf(k)].toLowerCase());
 }
-function monthCalendar(){
- const [year,mo]=month.split("-").map(Number);
+function monthCalendar(period=month){
+ const [year,mo]=period.split("-").map(Number);
  const total=new Date(year,mo,0).getDate(),items=[];
  for(let d=1;d<=total;d++){
   const date=year+"-"+pad(mo)+"-"+pad(d);
@@ -525,8 +527,8 @@ function monthCalendar(){
  }
  return items;
 }
-function buildMonthPdfData(){
- const daily=monthCalendar();
+function buildMonthPdfData(period=month){
+ const daily=monthCalendar(period);
  let registered=0,complete=0,worked=0,extra60=0,extra100=0;
  const reportRows=daily.map(r=>{
   const filled=SLOTS.some(k=>!!r[k]),sum=summarize(r);
@@ -563,15 +565,90 @@ function buildMonthPdfData(){
    status:status,note:parts.join(" | ")||status
   };
  });
- const financial=monthFinance(month);
+ const financial=monthFinance(period);
  return {
-  month,rows:reportRows,
+  month:period,rows:reportRows,
   summary:{
    registered,complete,worked:formatMin(worked),he60:formatMin(extra60),
    he100:formatMin(extra100),nightClock:formatMin(Math.round(financial.nightClock*60))
   }
  };
 }
+
+function updatePdfSelectionSummary(){
+ const summary=$("pdfSelectionSummary");
+ if(!summary)return;
+ const periods=[...pdfSelectedMonths].sort();
+ const days=periods.reduce((n,period)=>{
+  const [year,mo]=period.split("-").map(Number);
+  return n+new Date(year,mo,0).getDate();
+ },0);
+ summary.textContent=periods.length?
+  periods.length+" mês(es) escolhido(s), "+days+" dias de calendário no mesmo PDF.":
+  "Nenhum mês selecionado. Marque uma ou mais competências acima.";
+ $("downloadMultiPdfBtn").disabled=!periods.length;
+ $("previewMultiPdfBtn").disabled=!periods.length;
+}
+function renderPdfMonthChoices(){
+ const parent=$("pdfMonthsChoices");
+ if(!parent)return;
+ if(!pdfSelectionInitialized){
+  pdfSelectedMonths.add(month);
+  pdfSelectionInitialized=true;
+ }
+ const first=paySettings.employment_start?.slice(0,7)||"2026-10";
+ const last=[month,today().slice(0,7),...Object.keys(rows).map(d=>d.slice(0,7)),...pdfSelectedMonths].sort().at(-1);
+ const candidates=new Set([...pdfSelectedMonths,month]);
+ let cursor=new Date(Number(first.slice(0,4)),Number(first.slice(5))-1,1);
+ const until=new Date(Number(last.slice(0,4)),Number(last.slice(5))-1,1);
+ let limiter=0;
+ while(cursor<=until&&limiter++<120){
+  candidates.add(cursor.getFullYear()+"-"+pad(cursor.getMonth()+1));
+  cursor.setMonth(cursor.getMonth()+1);
+ }
+ const months=[...candidates].filter(p=>/^\d{4}-(0[1-9]|1[0-2])$/.test(p)).sort().reverse();
+ parent.replaceChildren();
+ for(const period of months){
+  const label=document.createElement("label");
+  label.className="pdf-month-choice";
+  const check=document.createElement("input");
+  check.type="checkbox";check.value=period;check.checked=pdfSelectedMonths.has(period);
+  const d=new Date(Number(period.slice(0,4)),Number(period.slice(5))-1,1);
+  const caption=document.createElement("span");
+  caption.textContent=d.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+  label.append(check,caption);
+  check.addEventListener("change",()=>{
+   if(check.checked)pdfSelectedMonths.add(period);
+   else pdfSelectedMonths.delete(period);
+   updatePdfSelectionSummary();
+  });
+  parent.append(label);
+ }
+ updatePdfSelectionSummary();
+}
+function selectedPdfData(){
+ const periods=[...pdfSelectedMonths].sort();
+ if(!periods.length)throw Error("Selecione pelo menos um mês.");
+ if(periods.length>60)throw Error("Selecione no máximo 60 meses por arquivo.");
+ return {months:periods.map(period=>buildMonthPdfData(period))};
+}
+function downloadMultiPdf(){
+ if(!session){toast("Entre na sua conta para baixar o espelho.");return;}
+ try{
+  if(!window.MeuPontoPDF)throw Error("Gerador de PDF não carregado.");
+  const result=window.MeuPontoPDF.download(selectedPdfData());
+  toast(result.months+" meses, "+result.rows+" dias e "+result.pages+" páginas disponíveis em Downloads.");
+ }catch(e){toast("Falha ao gerar PDF conjunto: "+e.message);}
+}
+function previewMultiPdf(){
+ if(!session){toast("Entre na sua conta para visualizar o espelho.");return;}
+ try{
+  if(!window.MeuPontoPDF)throw Error("Gerador de PDF não carregado.");
+  const result=window.MeuPontoPDF.preview(selectedPdfData());
+  toast("Visualizando "+result.months+" meses no mesmo PDF, "+result.rows+" dias.");
+ }catch(e){toast("Falha na visualização: "+e.message);}
+}
+
 function downloadMonthPdf(){
  if(!session){toast("Entre na sua conta para baixar o espelho.");return;}
  if(!window.MeuPontoPDF){toast("Gerador de PDF indisponivel. Atualize o aplicativo.");return;}
@@ -689,6 +766,20 @@ function init(){
  $("exportBtn").addEventListener("click",download);
  $("downloadMonthPdfBtn").addEventListener("click",downloadMonthPdf);
  $("previewMonthPdfBtn").addEventListener("click",previewMonthPdf);
+ $("downloadMultiPdfBtn").addEventListener("click",downloadMultiPdf);
+ $("previewMultiPdfBtn").addEventListener("click",previewMultiPdf);
+ $("selectAllPdfMonths").addEventListener("click",()=>{
+  document.querySelectorAll('#pdfMonthsChoices input[type="checkbox"]').forEach(input=>{
+   pdfSelectedMonths.add(input.value);
+   input.checked=true;
+  });
+  updatePdfSelectionSummary();
+ });
+ $("clearPdfMonths").addEventListener("click",()=>{
+  pdfSelectedMonths.clear();
+  document.querySelectorAll('#pdfMonthsChoices input[type="checkbox"]').forEach(input=>input.checked=false);
+  updatePdfSelectionSummary();
+ });
  $("syncBtn").addEventListener("click",()=>sync());
  window.addEventListener("online",()=>sync());
  window.addEventListener("offline",()=>putStatus("Offline — salvo neste aparelho","warn"));
