@@ -358,6 +358,12 @@ function init(){
  $("nextMonth").addEventListener("click",()=>shiftMonth(1));
  $("punchBtn").addEventListener("click",punch);
  $("editTodayBtn").addEventListener("click",()=>editDay(activeDay()));
+ $("editDate").value=today();
+ $("editDateBtn").addEventListener("click",()=>{
+  const day=$("editDate").value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)){toast("Escolha a data da jornada.");return;}
+  editDay(day);
+ });
  $("dayForm").addEventListener("submit",submitDay);
  $("closeDialog").addEventListener("click",()=>$("editDialog").close());
  $("cancelEdit").addEventListener("click",()=>$("editDialog").close());
