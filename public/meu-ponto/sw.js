@@ -1,4 +1,4 @@
-const CACHE="meu-ponto-web-shell-v5";
+const CACHE="meu-ponto-web-shell-v6";
 const ASSETS=["./","./index.html","./app.js","./icon.svg","./manifest.webmanifest"];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
