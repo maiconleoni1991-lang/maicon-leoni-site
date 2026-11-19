@@ -12,7 +12,7 @@ const fixture={
  "2026-11-14":{work_day:"2026-11-14",entry_at:"2026-11-14T19:00",break_out_at:"2026-11-15T00:27",break_in_at:"2026-11-15T00:42",exit_at:"2026-11-15T01:21",shift:2,note:"",holiday:false,holiday_override:null},
  "2026-11-02":{work_day:"2026-11-02",entry_at:"2026-11-02T14:32",break_out_at:"2026-11-02T19:51",break_in_at:"2026-11-02T20:50",exit_at:"2026-11-02T23:04",shift:2,note:"",holiday:false,holiday_override:null}
 };
-const injection='session={user:{id:"test-account",email:"test@example.com"},access_token:"test-token",expires_at:4070908800};month="2026-11";rows='+JSON.stringify(fixture)+';window.testRender=()=>render();window.testMonth=p=>buildMonthPdfData(p);\n})();';
+const injection='session={user:{id:"test-account",email:"test@example.com"},access_token:"test-token",expires_at:4070908800};month="2026-11";rows='+JSON.stringify(fixture)+';window.testRender=()=>render();window.testMonth=p=>buildMonthPdfData(p);window.testNov14=()=>({summary:summarize(rows["2026-11-14"]),payroll:payrollForDay(rows["2026-11-14"]),planned:shiftEnd(rows["2026-11-14"])});\n})();';
 const patched=app.replace(marker,injection);
 function element(){
  const children=[];
@@ -43,6 +43,17 @@ assert.equal(nov14.entry,"19:00");
 assert.equal(nov14.breakOut,"00:27 (+1)");
 assert.equal(nov14.breakIn,"00:42 (+1)");
 assert.equal(nov14.exit,"01:21 (+1)");
+assert.equal(nov14.worked,"6h06","15 minutos de intervalo descontados");
+assert.equal(nov14.he60,"—","Nenhuma hora extra antes de 00h");
+assert.equal(nov14.he100,"1h15","66 minutos efetivos com hora noturna reduzida");
+assert(nov14.note.includes("Turno excepcional por falta de energia"),"Justificativa deve constar no espelho");
+const nov14Detail=window.testNov14();
+assert.equal(nov14Detail.summary.afterEnd,66,"Apenas 66 min trabalhados após 00h, sem intervalo");
+assert.equal(nov14Detail.summary.he60,0,"19h-00h são horas normais deste turno excepcional");
+assert.equal(nov14Detail.summary.he100,75,"HE 100% em horas reduzidas, com arredondamento");
+assert(Math.abs(nov14Detail.payroll.nightClock-(3+6/60))<1e-8,"Adicional noturno: 22h até 01h21, menos intervalo");
+assert(Math.abs(nov14Detail.payroll.nightPaid-(3+6/60)*60/52.5)<1e-8,"Hora noturna reduzida de 52min30s");
+assert(Math.abs((nov14Detail.payroll.he100Night*60)-66*60/52.5)<1e-8,"Extra 100% também noturna");
 const pdfWindow={};
 vm.runInNewContext(generator,{window:pdfWindow},{filename:"pdf-export.js"});
 const result=pdfWindow.MeuPontoPDF.makePDF({months:[november,october]});
