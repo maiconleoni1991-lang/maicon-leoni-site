@@ -30,6 +30,9 @@ const expectedBreak=day=>{
  return 60;
 };
 const shiftEnd=r=>{
+ // 14/11/2026: turno excepcional por interrupção de energia; 19h às 00h normais.
+ // Somente o tempo efetivamente trabalhado após 00h de 15/11 é extra (domingo/feriado).
+ if(r.work_day==="2026-11-14")return new Date(2026,10,15,0,0).getTime();
  const [y,m,d]=r.work_day.split("-").map(Number);
  const hour=r.shift===1?(isSat(r.work_day)?11:16):(isSat(r.work_day)?18:23);
  const minute=r.shift===2&&isSat(r.work_day)?30:r.shift===2?4:0;
@@ -170,7 +173,10 @@ function summarize(r){
  const scheduledEnd=shiftEnd(r);
  const observedAfter=r.exit_at?Math.max(0,Math.round((ms(r.exit_at)-scheduledEnd)/60000)):0;
  // "Após o fim previsto" é referência, inclusive em jornada incompleta, não pagamento aprovado.
- const afterEnd=gross?Math.min(gross,observedAfter):observedAfter;
+ const afterEnd=valid?
+   [[r.entry_at,r.break_out_at],[r.break_in_at,r.exit_at]].reduce((total,[start,end])=>
+    total+Math.max(0,Math.round((ms(end)-Math.max(ms(start),scheduledEnd))/60000)),0):
+   (gross?Math.min(gross,observedAfter):observedAfter);
  const x=valid?payrollForDay(r):null;
  const he60=x?Math.round((x.he60Day+x.he60Night)*60):0;
  const he100=x?Math.round((x.he100Day+x.he100Night)*60):0;
@@ -432,7 +438,7 @@ function render(){
   tag.className="tag"+(sum.valid?" ok":"");
   tag.textContent=sum.valid?"Completo":"Em aberto";
   td.append(tag);tr.append(td);
-  tr.title=(holidayName(r.work_day)||"")+(r.note?" · "+r.note:"")+" · Abrir jornada";
+  tr.title=(r.work_day==="2026-11-14"?"Turno excepcional: normal até 00h de 15/11 · ":"")+(holidayName(r.work_day)||"")+(r.note?" · "+r.note:"")+" · Abrir jornada";
   tr.addEventListener("click",()=>editDay(r.work_day));
   body.append(tr);
  });
@@ -447,14 +453,16 @@ function render(){
  $("incompleteTotal").textContent=incomplete;
  renderFinance();
  window.MeuPontoPayroll?.render?.();
- $("monthNote").textContent=monthRows.length+" jornada(s) · todas as batidas exibidas são os horários reais. Totais de horas e extras somente para jornadas completas. Após previsto: tempo entre fim programado e saída, sujeito à conferência. 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. Intervalos de referência: seg–qui 60 min, sexta 30 min, sábado 15 min; retornar antes não é pendência.";
+ $("monthNote").textContent=monthRows.length+" jornada(s) · batidas exibidas nos horários reais. Totais somente para jornadas completas. Após previsto: tempo efetivamente trabalhado depois do fim programado (em jornada incompleta, apenas referência). 1º turno: seg-sex 16h, sábado 11h; 2º turno: seg-sex 23h04, sábado 18h30. EXCEÇÃO 14/11/2026: turno 19h–00h por falta de energia; extra desde 00h, com adicional noturno desde 22h. Intervalos de referência: seg–qui 60 min, sexta 30 min, sábado 15 min."; 
 }
 function editDay(day){
  const r=rows[day]||blank(day);
  $("dialogTitle").textContent="Jornada de "+fmtDate(day);
  $("workDay").value=day;$("shift").value=r.shift;
  const plannedBreak=expectedBreak(day);
- $("expectedBreakInfo").textContent=plannedBreak===null?"Domingo: registre o intervalo real, se houver.":"Intervalo de referência: "+plannedBreak+" minutos. Se voltar alguns minutos antes, o registro será aceito. O espelho mostrará a hora exata de cada batida.";
+ $("expectedBreakInfo").textContent=day==="2026-11-14"?
+  "Turno excepcional por falta de energia: 19h às 00h previstas. Após 00h de 15/11, a hora trabalhada é extra de domingo/feriado (100%), com adicional noturno desde 22h. Intervalo real: 15 min.":
+  plannedBreak===null?"Domingo: registre o intervalo real, se houver.":"Intervalo de referência: "+plannedBreak+" minutos. Se voltar alguns minutos antes, o registro será aceito. O espelho mostrará a hora exata de cada batida.";
  $("entryAt").value=r.entry_at;$("breakOut").value=r.break_out_at;
  $("breakIn").value=r.break_in_at;$("exitAt").value=r.exit_at;
  $("note").value=r.note||"";
@@ -546,6 +554,7 @@ function buildMonthPdfData(period=month){
   if(r.exit_at&&r.exit_at.slice(0,10)!==r.work_day&&premiumDay(r.exit_at.slice(0,10),r)){
    parts.push("Virada para domingo/feriado: 100% apos meia-noite");
   }
+  if(r.work_day==="2026-11-14")parts.push("Turno excepcional por falta de energia: jornada normal das 19h às 00h; após 00h extras 100% (domingo/feriado), além do adicional noturno desde 22h.");
   if(r.note)parts.push(r.note);
   if(filled&&!sum.valid){
    const missing=missingFields(r);
